@@ -24,7 +24,7 @@ The following steps have been completed:
 - A 250 × 250 meter spatial analysis grid was generated.
 - GeoPackage and GeoJSON grid outputs were created locally.
 - A grid preview image and technical summary were generated.
-
+- Automated geometry, schema, coordinate system and grid integrity tests were added using Pytest.
 The project is currently entering the **spatial feature collection and feature engineering phase**.
 
 ## Study Grid Preview
@@ -298,8 +298,8 @@ Private, restricted or non-public datasets must not be added to the repository w
 - [x] Transform the boundary into a projected coordinate system
 - [x] Generate 250 × 250 meter analysis grids
 - [x] Create the grid preview and summary
-- [ ] Validate the study grid geometries
-- [ ] Add automated tests for the grid pipeline
+- [x] Validate the study grid geometries
+- [x] Add automated tests for the grid pipeline
 
 ### Phase 3 — Spatial Data Collection
 
