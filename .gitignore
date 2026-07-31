@@ -1,0 +1,63 @@
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# IDE files
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Python package outputs
+build/
+dist/
+*.egg-info/
+
+# Machine learning model files
+*.pkl
+*.joblib
+*.onnx
+*.pt
+*.pth
+
+# Large data files
+data/raw/*
+data/interim/*
+data/processed/*
+
+# Preserve data folder structure
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+
+# Frontend dependencies and builds
+frontend/node_modules/
+frontend/dist/
+
+# Temporary files
+*.tmp
+*.temp
