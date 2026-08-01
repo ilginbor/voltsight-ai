@@ -29,6 +29,10 @@ The following steps have been completed:
 - OpenStreetMap parking features were collected for Çankaya and its surrounding buffer.
 - Grid-level parking accessibility, area, capacity and proximity features were generated.
 - Automated integrity tests were added for parking geometries, radius counts, distance calculations, area ratios and machine-learning outputs.
+- Existing OpenStreetMap EV charging stations were collected and cleaned.
+- Grid-level charging-station proximity, density, capacity and connector features were generated.
+- Automated tests were added for station geometries, spatial assignments, radius counts, nearest-distance calculations and machine-learning outputs.
+- The complete project test suite currently contains 144 passing tests.
 The project is currently entering the **spatial feature collection and feature engineering phase**.
 
 ## Study Grid Preview
@@ -165,7 +169,61 @@ incomplete. These features represent mapped parking accessibility,
 not a complete official parking inventory.
 
 ![Çankaya Parking Accessibility](docs/cankaya_parking_features_preview.png)
+## Charging Station Feature Engineering
 
+Existing electric vehicle charging stations were collected from
+OpenStreetMap using the `amenity=charging_station` tag for Çankaya
+and an additional 2.5-kilometer buffer around the district.
+
+Each charging-station record was cleaned, projected into the analysis
+coordinate system and assigned a unique identifier.
+
+The following grid-level columns were generated:
+
+- `charging_station_count`
+- `has_existing_charging_station`
+- `distance_to_nearest_charging_station_m`
+- `charging_station_count_within_1000m`
+- `charging_station_count_within_2000m`
+- `known_charging_capacity`
+- `charging_capacity_record_count`
+- `ac_station_count_within_1000m`
+- `dc_station_count_within_1000m`
+
+Representative station points were used for grid assignment and
+radius-based accessibility calculations. Distances were calculated
+from the center of each 250 × 250 meter grid cell in the projected
+meter-based coordinate system.
+
+### Initial Charging Station Statistics
+
+- Unique mapped charging stations: 18
+- Grid cells containing at least one charging station: 9
+- Grid cells with a station within 1,000 meters: 322
+- Grid cells with a station within 2,000 meters: 1,156
+- Median distance to the nearest charging station: 5,417.67 meters
+- Maximum distance to the nearest charging station: 26,524.34 meters
+- Stations with a mapped AC connector: 6
+- Stations with a mapped DC connector: 3
+
+![Çankaya EV Charging Accessibility](docs/cankaya_charging_features_preview.png)
+
+### Scientific Limitation
+
+OpenStreetMap contains only 18 mapped charging-station records in the
+current study area and its surrounding buffer. Therefore, this source
+must not be treated as a complete official charging-station inventory.
+
+The charging-station dataset will be enriched with additional openly
+licensed data sources before a final machine-learning target is created.
+
+The columns `charging_station_count` and
+`has_existing_charging_station` are target or descriptive variables.
+They must not be used directly as predictor inputs when training a
+model to reproduce the existing charging-station distribution.
+
+Distance and neighborhood station-count columns will also require
+leakage-aware treatment during model development.
 ### Initial Road Statistics
 
 - Grid cells containing road data: 3,346
@@ -367,7 +425,11 @@ Private, restricted or non-public datasets must not be added to the repository w
 - [x] Collect parking areas
 - [x] Calculate grid-level parking features
 - [x] Validate parking-feature outputs with automated tests
-- [ ] Collect existing charging stations
+- [x] Collect OpenStreetMap charging stations
+- [x] Calculate grid-level charging-station features
+- [x] Validate charging-station outputs with automated tests
+- [ ] Find an additional open charging-station data source
+- [ ] Merge and deduplicate charging-station inventories
 - [ ] Collect shopping centers and commercial locations
 - [ ] Collect hospitals and universities
 - [ ] Collect fuel stations
