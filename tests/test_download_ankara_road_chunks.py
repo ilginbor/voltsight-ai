@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 from pathlib import Path
@@ -13,6 +13,7 @@ from voltsight.features.download_ankara_road_chunks import (
     chunk_metadata_path,
     chunk_output_path,
     create_download_polygon,
+    is_confirmed_empty_road_response,
     parse_arguments,
     resolve_paths,
     select_chunks,
@@ -269,4 +270,100 @@ def test_completed_output_requires_success_metadata(
     assert chunk_is_complete(
         output_path,
         metadata_path,
+    )
+
+
+
+def test_confirmed_empty_response_is_detected() -> None:
+    """Two independent no-data responses confirm an empty chunk."""
+
+    error = RuntimeError(
+        "Attempt details:\n"
+        "- endpoint-a: InsufficientResponseError: "
+        "No data elements in server response.\n"
+        "- endpoint-b: InsufficientResponseError: "
+        "No data elements in server response."
+    )
+
+    assert is_confirmed_empty_road_response(
+        error
+    )
+
+
+def test_single_empty_response_is_not_enough() -> None:
+    """One empty response plus network failures remains retryable."""
+
+    error = RuntimeError(
+        "Attempt details:\n"
+        "- endpoint-a: ConnectionError\n"
+        "- endpoint-b: InsufficientResponseError: "
+        "No data elements in server response."
+    )
+
+    assert not is_confirmed_empty_road_response(
+        error
+    )
+
+
+def test_empty_success_metadata_needs_no_geopackage(
+    tmp_path: Path,
+) -> None:
+    """A confirmed road-free chunk is reusable without a GIS file."""
+
+    output_path = (
+        tmp_path / "missing_roads.gpkg"
+    )
+
+    metadata_path = (
+        tmp_path / "empty_metadata.json"
+    )
+
+    metadata_path.write_text(
+        json.dumps(
+            {
+                "status": "success",
+                "is_empty": True,
+                "road_edge_count": 0,
+                "output_path": None,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert chunk_is_complete(
+        output_path,
+        metadata_path,
+    )
+
+
+
+def test_two_no_graph_node_responses_confirm_empty_chunk() -> None:
+    """Two no-node endpoint results confirm a road-free chunk."""
+
+    error = RuntimeError(
+        "Attempt details:\n"
+        "- endpoint-a: ValueError: Found no graph nodes "
+        "within the requested polygon.\n"
+        "- endpoint-b: ValueError: Found no graph nodes "
+        "within the requested polygon."
+    )
+
+    assert is_confirmed_empty_road_response(
+        error
+    )
+
+
+def test_mixed_empty_response_types_confirm_empty_chunk() -> None:
+    """Different OSMnx no-data messages may confirm the same result."""
+
+    error = RuntimeError(
+        "Attempt details:\n"
+        "- endpoint-a: InsufficientResponseError: "
+        "No data elements in server response.\n"
+        "- endpoint-b: ValueError: Found no graph nodes "
+        "within the requested polygon."
+    )
+
+    assert is_confirmed_empty_road_response(
+        error
     )

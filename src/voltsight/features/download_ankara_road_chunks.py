@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import argparse
 import json
@@ -545,13 +545,7 @@ def chunk_is_complete(
     output_path: Path,
     metadata_path: Path,
 ) -> bool:
-    """Return whether a chunk has a successful reusable output."""
-
-    if not output_path.exists():
-        return False
-
-    if output_path.stat().st_size <= 0:
-        return False
+    """Return whether a chunk has a successful reusable result."""
 
     metadata = read_metadata(
         metadata_path
@@ -560,12 +554,67 @@ def chunk_is_complete(
     if not metadata:
         return False
 
+    if metadata.get("status") != "success":
+        return False
+
+    if (
+        metadata.get("is_empty") is True
+        and int(metadata.get("road_edge_count", -1)) == 0
+    ):
+        return True
+
+    if not output_path.exists():
+        return False
+
+    if output_path.stat().st_size <= 0:
+        return False
+
     return (
-        metadata.get("status")
-        == "success"
-        and metadata.get("output_path")
+        metadata.get("output_path")
         == output_path.as_posix()
     )
+
+
+EMPTY_ROAD_RESPONSE_MARKERS = (
+    (
+        "InsufficientResponseError: "
+        "No data elements in server response"
+    ),
+    (
+        "ValueError: Found no graph nodes "
+        "within the requested polygon"
+    ),
+)
+
+
+def is_confirmed_empty_road_response(
+    error: Exception,
+) -> bool:
+    """
+    Detect a road-free chunk confirmed by multiple endpoints.
+
+    OSMnx can report a genuinely empty road query in two stages:
+
+    - the Overpass response contains no matching data elements;
+    - data exists around the query, but no graph nodes remain inside
+      the requested polygon.
+
+    At least two matching endpoint results are required. A single
+    empty response combined with connection failures remains retryable.
+    """
+
+    error_text = str(
+        error
+    )
+
+    empty_response_count = sum(
+        error_text.count(
+            marker
+        )
+        for marker in EMPTY_ROAD_RESPONSE_MARKERS
+    )
+
+    return empty_response_count >= 2
 
 
 def utc_now() -> str:
@@ -704,6 +753,7 @@ def process_chunk(
                 / 1_000_000.0,
                 4,
             ),
+            "is_empty": False,
             "road_edge_count": int(
                 len(roads)
             ),
@@ -733,11 +783,51 @@ def process_chunk(
         return "success"
 
     except Exception as error:
+        if is_confirmed_empty_road_response(
+            error
+        ):
+            if output_path.exists():
+                output_path.unlink()
+
+            metadata = {
+                "chunk_id": chunk_id,
+                "chunk_order": chunk_order,
+                "grid_cell_count": grid_cell_count,
+                "status": "success",
+                "is_empty": True,
+                "network_type": NETWORK_TYPE,
+                "download_buffer_m": download_buffer_m,
+                "road_edge_count": 0,
+                "main_road_edge_count": 0,
+                "output_path": None,
+                "cache_directory": cache_directory.as_posix(),
+                "started_at_utc": started_at,
+                "completed_at_utc": utc_now(),
+                "error": None,
+                "empty_reason": (
+                    "Multiple Overpass endpoints returned "
+                    "no matching drivable-road elements."
+                ),
+            }
+
+            write_metadata(
+                metadata_path,
+                metadata,
+            )
+
+            print(
+                f"[EMPTY] {chunk_id}: "
+                "no matching drivable roads"
+            )
+
+            return "success"
+
         metadata = {
             "chunk_id": chunk_id,
             "chunk_order": chunk_order,
             "grid_cell_count": grid_cell_count,
             "status": "failed",
+            "is_empty": False,
             "network_type": NETWORK_TYPE,
             "download_buffer_m": download_buffer_m,
             "output_path": output_path.as_posix(),
