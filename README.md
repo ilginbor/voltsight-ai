@@ -25,6 +25,7 @@ The following steps have been completed:
 - GeoPackage and GeoJSON grid outputs were created locally.
 - A grid preview image and technical summary were generated.
 - Automated geometry, schema, coordinate system and grid integrity tests were added using Pytest.
+- Automated integrity tests were added for road geometries, road lengths, density calculations, nearest-main-road distances and machine-learning outputs.
 The project is currently entering the **spatial feature collection and feature engineering phase**.
 
 ## Study Grid Preview
@@ -117,6 +118,31 @@ The study grid pipeline performs the following operations:
 8. Assigns a unique identifier to every retained grid cell.
 9. Calculates grid center coordinates and cell areas.
 10. Produces local GeoPackage, GeoJSON, preview and summary outputs.
+## Road Feature Engineering
+
+The OpenStreetMap drivable road network was downloaded for Çankaya and an additional one-kilometer buffer around the district.
+
+Road geometries were intersected with each 250 × 250 meter analysis cell. The following features were generated for every grid cell:
+
+- `road_length_m`
+- `road_segment_count`
+- `main_road_length_m`
+- `main_road_segment_count`
+- `road_density_km_per_km2`
+- `distance_to_main_road_m`
+- `nearest_main_road_type`
+
+The generated dataset contains 7,227 grid records.
+
+### Initial Road Statistics
+
+- Grid cells containing road data: 3,346
+- Grid cells without road data: 3,881
+- Mean road density: 5.48 km/km²
+- Median distance to a main road: 375.49 meters
+- Maximum distance to a main road: 4,037.23 meters
+
+The road-feature pipeline and outputs are validated through automated Pytest checks.
 
 ## Generated Grid Outputs
 
@@ -303,7 +329,9 @@ Private, restricted or non-public datasets must not be added to the repository w
 
 ### Phase 3 — Spatial Data Collection
 
-- [ ] Collect the road network
+- [x] Collect the road network
+- [x] Calculate grid-level road features
+- [x] Validate road-feature outputs with automated tests
 - [ ] Collect parking areas
 - [ ] Collect existing charging stations
 - [ ] Collect shopping centers and commercial locations
@@ -311,7 +339,6 @@ Private, restricted or non-public datasets must not be added to the repository w
 - [ ] Collect fuel stations
 - [ ] Collect public transport features
 - [ ] Collect residential and commercial land-use information
-
 ### Phase 4 — Feature Engineering
 
 - [ ] Calculate distance to main roads
