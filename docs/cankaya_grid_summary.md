@@ -4,11 +4,14 @@
 
 - Boundary source: OpenStreetMap / Nominatim
 - Selected result: Çankaya, Ankara, Central Anatolia Region, Turkey
+- Study-area key: `cankaya`
+- Boundary scope: district
 - Study area: Çankaya, Ankara, Türkiye
 
 ## Grid Configuration
 
 - Grid type: Fixed square grid
+- Grid prefix: `CKY`
 - Cell width: 250 meters
 - Cell height: 250 meters
 - Individual cell area: 62,500 square meters
@@ -33,11 +36,16 @@
 
 ## Method
 
-A square grid was generated over the district bounding box. A grid
-cell was retained when its center point fell inside the Çankaya
-administrative boundary. This approach preserves a consistent
-250 x 250 meter shape for every analysis cell.
+A square grid was generated over the administrative boundary bounding
+box. A cell was retained when its centroid fell inside or touched the
+selected boundary. This preserves a consistent
+250 x 250 meter square for every retained analysis
+cell.
+
+The boundary area was validated against the expected range configured
+for `cankaya`. This prevents an Ankara city boundary
+from being mistaken for the complete Ankara province boundary.
 
 ## Generated At
 
-2026-07-31T07:39:28.747064+00:00
+2026-08-01T13:03:05.145484+00:00
