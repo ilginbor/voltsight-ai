@@ -21,7 +21,7 @@ CHARGING_STATIONS_PATH = (
     PROJECT_ROOT
     / "data"
     / "interim"
-    / "cankaya_charging_stations.gpkg"
+    / "cankaya_charging_stations_merged.gpkg"
 )
 
 CHARGING_FEATURES_PATH = (
@@ -51,7 +51,7 @@ CHARGING_SUMMARY_PATH = (
 )
 
 BASE_FEATURE_LAYER = "grid_parking_features"
-CHARGING_STATION_LAYER = "charging_stations"
+CHARGING_STATION_LAYER = "charging_stations_merged"
 CHARGING_FEATURE_LAYER = "grid_charging_features"
 
 DISTANCE_TOLERANCE_METERS = 0.02

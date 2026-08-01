@@ -7,24 +7,24 @@
 - Download method: OSMnx polygon feature query
 - Download buffer: 2,500 meters
 - Successful Overpass endpoint: https://maps.mail.ru/osm/tools/overpass/api
-- Generated at: 2026-08-01T09:22:16.106775+00:00
+- Generated at: 2026-08-01T12:01:43.919083+00:00
 
 ## Downloaded Charging Stations
 
-- Unique mapped charging stations: 18
-- Stations with known numeric capacity: 8
-- Total known capacity: 296
-- Stations with a mapped AC connector: 6
+- Unique mapped charging stations: 19
+- Stations with known numeric capacity: 9
+- Total known capacity: 298
+- Stations with a mapped AC connector: 7
 - Stations with a mapped DC connector: 3
 
 ## Grid Results
 
 - Grid cell count: 7,227
-- Cells containing a mapped charging station: 9
-- Cells with a mapped station within 1,000 meters: 322
-- Cells with a mapped station within 2,000 meters: 1,156
-- Mean distance to nearest mapped station: 9,085.28 m
-- Median distance to nearest mapped station: 5,417.67 m
+- Cells containing a mapped charging station: 10
+- Cells with a mapped station within 1,000 meters: 370
+- Cells with a mapped station within 2,000 meters: 1,239
+- Mean distance to nearest mapped station: 9,056.02 m
+- Median distance to nearest mapped station: 5,415.48 m
 - Maximum distance to nearest mapped station: 26,524.34 m
 
 ## Generated Columns

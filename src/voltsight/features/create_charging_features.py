@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
+import subprocess
+import sys
 from typing import Any
 
 import geopandas as gpd
@@ -36,6 +38,22 @@ CHARGING_STATIONS_OUTPUT_PATH = (
     / "data"
     / "interim"
     / "cankaya_charging_stations.gpkg"
+)
+
+
+MERGED_CHARGING_STATIONS_INPUT_PATH = (
+    PROJECT_ROOT
+    / "data"
+    / "interim"
+    / "cankaya_charging_stations_merged.gpkg"
+)
+
+CHARGING_SOURCE_MERGE_SCRIPT_PATH = (
+    PROJECT_ROOT
+    / "src"
+    / "voltsight"
+    / "data"
+    / "merge_charging_station_sources.py"
 )
 
 FEATURE_GPKG_OUTPUT_PATH = (
@@ -75,6 +93,7 @@ CACHE_DIRECTORY = PROJECT_ROOT / "cache"
 
 BASE_FEATURE_LAYER_NAME = "grid_parking_features"
 CHARGING_STATION_LAYER_NAME = "charging_stations"
+MERGED_CHARGING_STATION_LAYER_NAME = "charging_stations_merged"
 FEATURE_LAYER_NAME = "grid_charging_features"
 
 DOWNLOAD_BUFFER_METERS = 2_500
@@ -984,6 +1003,217 @@ def save_charging_stations(
     )
 
 
+def refresh_merged_charging_stations() -> None:
+    """Rebuild the merged OSM and verified EPDK station inventory."""
+
+    if not CHARGING_SOURCE_MERGE_SCRIPT_PATH.exists():
+        raise FileNotFoundError(
+            "Charging-station source merge script was not found:\n"
+            f"{CHARGING_SOURCE_MERGE_SCRIPT_PATH}"
+        )
+
+    print("-" * 70)
+
+    print(
+        "Refreshing merged OSM and EPDK "
+        "charging-station inventory..."
+    )
+
+    subprocess.run(
+        [
+            sys.executable,
+            str(
+                CHARGING_SOURCE_MERGE_SCRIPT_PATH
+            ),
+        ],
+        cwd=PROJECT_ROOT,
+        check=True,
+    )
+
+    if not MERGED_CHARGING_STATIONS_INPUT_PATH.exists():
+        raise FileNotFoundError(
+            "Merged charging-station output was not created:\n"
+            f"{MERGED_CHARGING_STATIONS_INPUT_PATH}"
+        )
+
+
+def load_feature_charging_stations(
+    target_crs: Any,
+) -> gpd.GeoDataFrame:
+    """Load the merged station inventory used for feature creation."""
+
+    required_columns = {
+        "station_id",
+        "capacity_numeric",
+        "has_ac_connector",
+        "has_dc_connector",
+        "data_source",
+        "source_osm",
+        "source_epdk",
+        "geometry",
+    }
+
+    charging_stations = gpd.read_file(
+        MERGED_CHARGING_STATIONS_INPUT_PATH,
+        layer=MERGED_CHARGING_STATION_LAYER_NAME,
+    )
+
+    if charging_stations.empty:
+        raise ValueError(
+            "The merged charging-station dataset is empty."
+        )
+
+    if charging_stations.crs is None:
+        raise ValueError(
+            "The merged charging-station dataset has no CRS."
+        )
+
+    missing_columns = (
+        required_columns
+        - set(charging_stations.columns)
+    )
+
+    if missing_columns:
+        raise ValueError(
+            "The merged charging-station dataset is missing "
+            f"columns: {sorted(missing_columns)}"
+        )
+
+    charging_stations[
+        "station_id"
+    ] = (
+        charging_stations["station_id"]
+        .astype(str)
+        .str.strip()
+    )
+
+    if (
+        charging_stations["station_id"]
+        .eq("")
+        .any()
+    ):
+        raise ValueError(
+            "The merged dataset contains an empty station ID."
+        )
+
+    if (
+        charging_stations["station_id"]
+        .duplicated()
+        .any()
+    ):
+        duplicate_ids = (
+            charging_stations.loc[
+                charging_stations[
+                    "station_id"
+                ].duplicated(
+                    keep=False
+                ),
+                "station_id",
+            ]
+            .tolist()
+        )
+
+        raise ValueError(
+            "Duplicate merged station IDs were found: "
+            f"{duplicate_ids}"
+        )
+
+    if (
+        charging_stations.geometry
+        .isna()
+        .any()
+    ):
+        raise ValueError(
+            "The merged dataset contains missing geometries."
+        )
+
+    charging_stations = (
+        charging_stations
+        .to_crs(target_crs)
+        .copy()
+    )
+
+    charging_stations[
+        "capacity_numeric"
+    ] = pd.to_numeric(
+        charging_stations[
+            "capacity_numeric"
+        ],
+        errors="coerce",
+    )
+
+    charging_stations.loc[
+        charging_stations[
+            "capacity_numeric"
+        ].lt(0),
+        "capacity_numeric",
+    ] = np.nan
+
+    flag_columns = (
+        "has_ac_connector",
+        "has_dc_connector",
+        "source_osm",
+        "source_epdk",
+    )
+
+    for column in flag_columns:
+        charging_stations[column] = (
+            pd.to_numeric(
+                charging_stations[column],
+                errors="coerce",
+            )
+            .fillna(0)
+        )
+
+    connector_flag_columns = (
+        "has_ac_connector",
+        "has_dc_connector",
+    )
+
+    for column in connector_flag_columns:
+        charging_stations[column] = (
+            charging_stations[column]
+            .gt(0)
+        )
+
+    source_flag_columns = (
+        "source_osm",
+        "source_epdk",
+    )
+
+    for column in source_flag_columns:
+        charging_stations[column] = (
+            charging_stations[column]
+            .gt(0)
+            .astype(int)
+        )
+
+    print(
+        "Loaded merged charging-station count: "
+        f"{len(charging_stations):,}"
+    )
+
+    source_counts = (
+        charging_stations[
+            "data_source"
+        ]
+        .fillna("UNKNOWN")
+        .astype(str)
+        .value_counts()
+    )
+
+    print(
+        "Merged charging-station source counts:"
+    )
+
+    for source, count in source_counts.items():
+        print(
+            f"  {source}: {int(count):,}"
+        )
+
+    return charging_stations
+
+
 def create_station_points(
     charging_stations: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame:
@@ -1852,10 +2082,18 @@ def main() -> None:
         charging_stations
     )
 
+    refresh_merged_charging_stations()
+
+    feature_charging_stations = (
+        load_feature_charging_stations(
+            base_features.crs
+        )
+    )
+
     features = (
         build_grid_charging_features(
             base_features,
-            charging_stations,
+            feature_charging_stations,
         )
     )
 
@@ -1870,17 +2108,17 @@ def main() -> None:
 
     create_preview(
         features,
-        charging_stations,
+        feature_charging_stations,
     )
 
     create_summary(
         features,
-        charging_stations,
+        feature_charging_stations,
     )
 
     print_feature_statistics(
         features,
-        charging_stations,
+        feature_charging_stations,
     )
 
     print("=" * 70)
