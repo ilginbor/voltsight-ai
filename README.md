@@ -26,6 +26,9 @@ The following steps have been completed:
 - A grid preview image and technical summary were generated.
 - Automated geometry, schema, coordinate system and grid integrity tests were added using Pytest.
 - Automated integrity tests were added for road geometries, road lengths, density calculations, nearest-main-road distances and machine-learning outputs.
+- OpenStreetMap parking features were collected for Çankaya and its surrounding buffer.
+- Grid-level parking accessibility, area, capacity and proximity features were generated.
+- Automated integrity tests were added for parking geometries, radius counts, distance calculations, area ratios and machine-learning outputs.
 The project is currently entering the **spatial feature collection and feature engineering phase**.
 
 ## Study Grid Preview
@@ -133,6 +136,35 @@ Road geometries were intersected with each 250 × 250 meter analysis cell. The f
 - `nearest_main_road_type`
 
 The generated dataset contains 7,227 grid records.
+## Parking Feature Engineering
+
+OpenStreetMap parking features were collected using the
+`amenity=parking` tag for Çankaya and an additional one-kilometer
+buffer around the district.
+
+Each parking record was cleaned, projected into the analysis
+coordinate system and assigned a unique identifier.
+
+The following grid-level features were generated:
+
+- `parking_count`
+- `parking_area_m2`
+- `parking_area_ratio`
+- `distance_to_nearest_parking_m`
+- `parking_count_within_500m`
+- `parking_count_within_1000m`
+- `known_parking_capacity`
+- `parking_capacity_record_count`
+
+Polygon parking areas were intersected with the 250 × 250 meter
+analysis grid. Representative points were used for local assignment
+and radius-based accessibility counts.
+
+OpenStreetMap parking coverage and capacity attributes may be
+incomplete. These features represent mapped parking accessibility,
+not a complete official parking inventory.
+
+![Çankaya Parking Accessibility](docs/cankaya_parking_features_preview.png)
 
 ### Initial Road Statistics
 
@@ -332,7 +364,9 @@ Private, restricted or non-public datasets must not be added to the repository w
 - [x] Collect the road network
 - [x] Calculate grid-level road features
 - [x] Validate road-feature outputs with automated tests
-- [ ] Collect parking areas
+- [x] Collect parking areas
+- [x] Calculate grid-level parking features
+- [x] Validate parking-feature outputs with automated tests
 - [ ] Collect existing charging stations
 - [ ] Collect shopping centers and commercial locations
 - [ ] Collect hospitals and universities
