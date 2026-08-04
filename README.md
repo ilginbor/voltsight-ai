@@ -1,304 +1,396 @@
-﻿# VoltSight
+VoltSight
 
-**Explainable AI for intelligent EV charging station site selection and urban infrastructure planning.**
+Akıllı elektrikli araç şarj istasyonu yer seçimi ve kentsel altyapı planlaması için açıklanabilir yapay zekâ projesi.
 
-VoltSight is an end-to-end artificial intelligence and geospatial data science project that identifies suitable locations for new electric vehicle charging stations.
+VoltSight; yeni elektrikli araç şarj istasyonları için uygun konumları belirlemeyi amaçlayan, uçtan uca bir yapay zekâ ve mekânsal veri bilimi projesidir.
 
-The system combines open geospatial data, spatial feature engineering, machine learning and explainable AI to evaluate urban areas and generate charging station suitability scores.
+Proje; açık coğrafi verileri, mekânsal özellik mühendisliğini, makine öğrenmesini ve açıklanabilir yapay zekâ yöntemlerini bir araya getirerek kentsel alanları değerlendirir ve şarj istasyonu uygunluk skorları üretmeyi hedefler.
 
-## Study Area
+Proje durumu: Çalışma alanı, analiz gridleri, yol, otopark ve mevcut şarj istasyonu özellikleri hazırlanmıştır. Proje; ek mekânsal veri kaynaklarının toplanması, özellik mühendisliğinin genişletilmesi ve makine öğrenmesi veri kümesinin oluşturulması aşamasında devam etmektedir.
 
-The first version of VoltSight focuses on **Çankaya, Ankara, Türkiye**.
+Çalışma Alanı
 
-The Çankaya administrative boundary is divided into fixed **250 × 250 meter grid cells**. Each grid cell will be evaluated using transportation, infrastructure, land-use and urban activity features.
+VoltSight'ın ilk sürümü Çankaya, Ankara, Türkiye bölgesine odaklanmaktadır.
 
-## Current Progress
+Çankaya ilçe sınırı, sabit 250 × 250 metre boyutundaki analiz hücrelerine ayrılmıştır. Her grid hücresi; ulaşım, altyapı, arazi kullanımı ve kentsel hareketlilik özellikleri kullanılarak ayrı ayrı değerlendirilecektir.
 
-The following steps have been completed:
+Mevcut İlerleme
 
-- Project repository and folder structure were initialized.
-- Python virtual environment was configured.
-- Data science and geospatial dependencies were installed.
-- The Çankaya administrative boundary was acquired from OpenStreetMap.
-- The boundary was transformed into a meter-based projected coordinate system.
-- A 250 × 250 meter spatial analysis grid was generated.
-- GeoPackage and GeoJSON grid outputs were created locally.
-- A grid preview image and technical summary were generated.
-- Automated geometry, schema, coordinate system and grid integrity tests were added using Pytest.
-- Automated integrity tests were added for road geometries, road lengths, density calculations, nearest-main-road distances and machine-learning outputs.
-- OpenStreetMap parking features were collected for Çankaya and its surrounding buffer.
-- Grid-level parking accessibility, area, capacity and proximity features were generated.
-- Automated integrity tests were added for parking geometries, radius counts, distance calculations, area ratios and machine-learning outputs.
-- Existing OpenStreetMap EV charging stations were collected and cleaned.
-- Grid-level charging-station proximity, density, capacity and connector features were generated.
-- Automated tests were added for station geometries, spatial assignments, radius counts, nearest-distance calculations and machine-learning outputs.
-- The complete project test suite currently contains 144 passing tests.
-The project is currently entering the **spatial feature collection and feature engineering phase**.
+Şu ana kadar tamamlanan çalışmalar:
 
-## Study Grid Preview
+Proje deposu ve klasör yapısı oluşturuldu.
 
-![Çankaya 250 x 250 Meter Study Grid](docs/cankaya_grid_preview.png)
+Python sanal ortamı yapılandırıldı.
 
-The grid cells shown above form the basic analysis units of VoltSight. Machine learning features and suitability predictions will be calculated separately for each cell.
+Veri bilimi ve coğrafi veri işleme bağımlılıkları kuruldu.
 
-## Project Goals
+Çankaya idari sınırı OpenStreetMap üzerinden elde edildi.
 
-- Collect and process open geospatial datasets
-- Build a reproducible spatial data pipeline
-- Generate fixed-size urban analysis grids
-- Extract transportation and urban activity features
-- Train and compare machine learning models
-- Produce charging station suitability scores
-- Explain predictions using SHAP
-- Estimate prediction uncertainty
-- Serve model results through a FastAPI backend
-- Visualize results using React and OpenLayers
-- Package the project using Docker
-- Track machine learning experiments using MLflow
+İdari sınır, metre tabanlı izdüşümlü bir koordinat sistemine dönüştürüldü.
 
-## Planned Spatial Features
+250 × 250 metre boyutunda mekânsal analiz gridi üretildi.
 
-Each grid cell will eventually contain features such as:
+GeoPackage ve GeoJSON grid çıktıları oluşturuldu.
 
-- Distance to the nearest main road
-- Total road length and road density
-- Number of nearby parking areas
-- Distance to the nearest parking area
-- Number of nearby points of interest
-- Commercial activity density
-- Residential activity density
-- Distance to existing charging stations
-- Number of existing charging stations within a defined radius
-- Distance to electrical infrastructure
-- Population and urban density indicators
-- Hospital, university and shopping center proximity
-- Fuel station proximity
-- Public transport accessibility
-- Land-use characteristics
+Grid önizleme görseli ve teknik özet raporu üretildi.
 
-## Methodology
+Geometri, şema, koordinat sistemi ve grid bütünlüğü için Pytest testleri yazıldı.
 
-The planned VoltSight workflow is:
+Yol geometrileri, yol uzunlukları, yoğunluk hesapları ve ana yola uzaklık değerleri üretildi.
 
-```text
-Open Geospatial Data
+Yol özellikleri ve makine öğrenmesi çıktıları için otomatik bütünlük testleri eklendi.
+
+Çankaya ve çevresindeki OpenStreetMap otopark verileri toplandı.
+
+Grid bazında otopark erişilebilirliği, alanı, kapasitesi ve yakınlık özellikleri üretildi.
+
+Otopark geometrileri, yarıçap sayımları, mesafe hesapları ve alan oranları test edildi.
+
+OpenStreetMap üzerindeki mevcut elektrikli araç şarj istasyonları toplandı ve temizlendi.
+
+Grid bazında şarj istasyonu yakınlığı, yoğunluğu, kapasitesi ve bağlantı türü özellikleri üretildi.
+
+İstasyon geometrileri, grid eşleştirmeleri, yarıçap sayımları ve en yakın mesafe hesapları test edildi.
+
+Proje test paketinde 144 başarılı test seviyesine ulaşıldı.
+
+Çalışma Gridi Önizlemesi
+
+
+
+Yukarıdaki grid hücreleri VoltSight'ın temel analiz birimlerini oluşturmaktadır. Makine öğrenmesi özellikleri ve uygunluk tahminleri her hücre için ayrı ayrı hesaplanacaktır.
+
+Proje Hedefleri
+
+Açık ve yeniden kullanılabilir coğrafi veri kaynaklarını toplamak
+
+Tekrar çalıştırılabilir bir mekânsal veri işleme hattı geliştirmek
+
+Sabit boyutlu kentsel analiz gridleri üretmek
+
+Ulaşım, altyapı ve kentsel aktivite özellikleri çıkarmak
+
+Makine öğrenmesi modellerini eğitmek ve karşılaştırmak
+
+Şarj istasyonu yer uygunluğu skorları üretmek
+
+Tahminleri SHAP ile açıklamak
+
+Tahmin belirsizliğini değerlendirmek
+
+Model sonuçlarını FastAPI üzerinden sunmak
+
+Sonuçları React ve OpenLayers tabanlı bir web uygulamasında görselleştirmek
+
+Projeyi Docker ile paketlemek
+
+Makine öğrenmesi deneylerini MLflow ile takip etmek
+
+Planlanan Mekânsal Özellikler
+
+Her grid hücresinde aşağıdaki özelliklerin bulunması hedeflenmektedir:
+
+En yakın ana yola uzaklık
+
+Toplam yol uzunluğu ve yol yoğunluğu
+
+Yakındaki otopark sayısı
+
+En yakın otoparka uzaklık
+
+Yakındaki ilgi noktası sayısı
+
+Ticari aktivite yoğunluğu
+
+Konut aktivitesi yoğunluğu
+
+Mevcut şarj istasyonlarına uzaklık
+
+Belirli yarıçaplardaki mevcut şarj istasyonu sayısı
+
+Elektrik altyapısına uzaklık
+
+Nüfus ve kentsel yoğunluk göstergeleri
+
+Hastane, üniversite ve alışveriş merkezlerine yakınlık
+
+Akaryakıt istasyonlarına yakınlık
+
+Toplu taşıma erişilebilirliği
+
+Arazi kullanım özellikleri
+
+Yöntem
+
+VoltSight için planlanan genel iş akışı:
+
+Açık Coğrafi Veriler
         |
         v
-Data Cleaning and Validation
+Veri Temizleme ve Doğrulama
         |
         v
-250 x 250 Meter Analysis Grid
+250 x 250 Metre Analiz Gridi
         |
         v
-Spatial Feature Engineering
+Mekânsal Özellik Mühendisliği
         |
         v
-Exploratory Data Analysis
+Keşifsel Veri Analizi
         |
         v
-Baseline Machine Learning Models
+Temel Makine Öğrenmesi Modelleri
         |
         v
-Advanced Suitability Model
+Gelişmiş Uygunluk Modeli
         |
         v
-SHAP Explanations and Uncertainty Analysis
+SHAP Açıklamaları ve Belirsizlik Analizi
         |
         v
 FastAPI Backend
         |
         v
-React and OpenLayers Web Application
-```
+React ve OpenLayers Web Uygulaması
 
-## Study Grid Generation
+Çalışma Gridi Üretimi
 
-The study grid pipeline performs the following operations:
+Çalışma gridi veri hattı aşağıdaki işlemleri gerçekleştirir:
 
-1. Queries OpenStreetMap for the Çankaya administrative boundary.
-2. Validates that the returned geometry is a polygon.
-3. Stores the original boundary in EPSG:4326.
-4. Estimates an appropriate local UTM coordinate system.
-5. Transforms the boundary into a meter-based coordinate system.
-6. Generates fixed 250 × 250 meter square cells.
-7. Retains cells whose center points fall inside the Çankaya boundary.
-8. Assigns a unique identifier to every retained grid cell.
-9. Calculates grid center coordinates and cell areas.
-10. Produces local GeoPackage, GeoJSON, preview and summary outputs.
-## Road Feature Engineering
+OpenStreetMap üzerinden Çankaya idari sınırını sorgular.
 
-The OpenStreetMap drivable road network was downloaded for Çankaya and an additional one-kilometer buffer around the district.
+Dönen geometrinin poligon yapısında olduğunu doğrular.
 
-Road geometries were intersected with each 250 × 250 meter analysis cell. The following features were generated for every grid cell:
+Orijinal sınırı EPSG:4326 koordinat sisteminde saklar.
 
-- `road_length_m`
-- `road_segment_count`
-- `main_road_length_m`
-- `main_road_segment_count`
-- `road_density_km_per_km2`
-- `distance_to_main_road_m`
-- `nearest_main_road_type`
+Bölge için uygun yerel UTM koordinat sistemini belirler.
 
-The generated dataset contains 7,227 grid records.
-## Parking Feature Engineering
+İdari sınırı metre tabanlı koordinat sistemine dönüştürür.
 
-OpenStreetMap parking features were collected using the
-`amenity=parking` tag for Çankaya and an additional one-kilometer
-buffer around the district.
+Sabit 250 × 250 metre kare hücreler oluşturur.
 
-Each parking record was cleaned, projected into the analysis
-coordinate system and assigned a unique identifier.
+Merkez noktası Çankaya sınırı içinde kalan hücreleri seçer.
 
-The following grid-level features were generated:
+Her grid hücresine benzersiz bir kimlik atar.
 
-- `parking_count`
-- `parking_area_m2`
-- `parking_area_ratio`
-- `distance_to_nearest_parking_m`
-- `parking_count_within_500m`
-- `parking_count_within_1000m`
-- `known_parking_capacity`
-- `parking_capacity_record_count`
+Grid merkez koordinatlarını ve hücre alanlarını hesaplar.
 
-Polygon parking areas were intersected with the 250 × 250 meter
-analysis grid. Representative points were used for local assignment
-and radius-based accessibility counts.
+GeoPackage, GeoJSON, önizleme görseli ve özet raporu üretir.
 
-OpenStreetMap parking coverage and capacity attributes may be
-incomplete. These features represent mapped parking accessibility,
-not a complete official parking inventory.
+Yol Özellik Mühendisliği
 
-![Çankaya Parking Accessibility](docs/cankaya_parking_features_preview.png)
-## Charging Station Feature Engineering
+OpenStreetMap üzerindeki sürüşe uygun yol ağı, Çankaya ilçesi ve ilçe çevresindeki ek bir kilometrelik tampon alan için indirilmiştir.
 
-Existing electric vehicle charging stations were collected from
-OpenStreetMap using the `amenity=charging_station` tag for Çankaya
-and an additional 2.5-kilometer buffer around the district.
+Yol geometrileri, 250 × 250 metre boyutundaki analiz hücreleriyle kesiştirilmiştir. Her grid hücresi için aşağıdaki özellikler üretilmiştir:
 
-Each charging-station record was cleaned, projected into the analysis
-coordinate system and assigned a unique identifier.
+road_length_m
 
-The following grid-level columns were generated:
+road_segment_count
 
-- `charging_station_count`
-- `has_existing_charging_station`
-- `distance_to_nearest_charging_station_m`
-- `charging_station_count_within_1000m`
-- `charging_station_count_within_2000m`
-- `known_charging_capacity`
-- `charging_capacity_record_count`
-- `ac_station_count_within_1000m`
-- `dc_station_count_within_1000m`
+main_road_length_m
 
-Representative station points were used for grid assignment and
-radius-based accessibility calculations. Distances were calculated
-from the center of each 250 × 250 meter grid cell in the projected
-meter-based coordinate system.
+main_road_segment_count
 
-### Initial Charging Station Statistics
+road_density_km_per_km2
 
-- Unique mapped charging stations: 18
-- Grid cells containing at least one charging station: 9
-- Grid cells with a station within 1,000 meters: 322
-- Grid cells with a station within 2,000 meters: 1,156
-- Median distance to the nearest charging station: 5,417.67 meters
-- Maximum distance to the nearest charging station: 26,524.34 meters
-- Stations with a mapped AC connector: 6
-- Stations with a mapped DC connector: 3
+distance_to_main_road_m
 
-![Çankaya EV Charging Accessibility](docs/cankaya_charging_features_preview.png)
+nearest_main_road_type
 
-### Scientific Limitation
+Üretilen veri kümesi 7.227 grid kaydı içermektedir.
 
-OpenStreetMap contains only 18 mapped charging-station records in the
-current study area and its surrounding buffer. Therefore, this source
-must not be treated as a complete official charging-station inventory.
+İlk Yol İstatistikleri
 
-The charging-station dataset will be enriched with additional openly
-licensed data sources before a final machine-learning target is created.
+Yol verisi içeren grid hücresi: 3.346
 
-The columns `charging_station_count` and
-`has_existing_charging_station` are target or descriptive variables.
-They must not be used directly as predictor inputs when training a
-model to reproduce the existing charging-station distribution.
+Yol verisi içermeyen grid hücresi: 3.881
 
-Distance and neighborhood station-count columns will also require
-leakage-aware treatment during model development.
-### Initial Road Statistics
+Ortalama yol yoğunluğu: 5,48 km/km²
 
-- Grid cells containing road data: 3,346
-- Grid cells without road data: 3,881
-- Mean road density: 5.48 km/km²
-- Median distance to a main road: 375.49 meters
-- Maximum distance to a main road: 4,037.23 meters
+Ana yola medyan uzaklık: 375,49 metre
 
-The road-feature pipeline and outputs are validated through automated Pytest checks.
+Ana yola maksimum uzaklık: 4.037,23 metre
 
-## Generated Grid Outputs
+Yol özellikleri veri hattı ve üretilen çıktılar otomatik Pytest kontrolleriyle doğrulanmaktadır.
 
-The current pipeline generates the following files:
+Otopark Özellik Mühendisliği
 
-```text
+OpenStreetMap üzerindeki amenity=parking etiketi kullanılarak Çankaya ve ilçe çevresindeki bir kilometrelik tampon alanda bulunan otopark verileri toplanmıştır.
+
+Her otopark kaydı temizlenmiş, analiz koordinat sistemine dönüştürülmüş ve benzersiz bir kimlikle eşleştirilmiştir.
+
+Grid bazında aşağıdaki özellikler üretilmiştir:
+
+parking_count
+
+parking_area_m2
+
+parking_area_ratio
+
+distance_to_nearest_parking_m
+
+parking_count_within_500m
+
+parking_count_within_1000m
+
+known_parking_capacity
+
+parking_capacity_record_count
+
+Poligon biçimindeki otopark alanları 250 × 250 metre analiz gridiyle kesiştirilmiştir. Yerel grid atamaları ve yarıçap tabanlı erişilebilirlik hesapları için temsili noktalar kullanılmıştır.
+
+Veri sınırlaması: OpenStreetMap üzerindeki otopark kapsamı ve kapasite bilgileri eksik olabilir. Bu özellikler, resmi ve eksiksiz bir otopark envanterini değil, haritalanmış otopark erişilebilirliğini temsil eder.
+
+
+
+Şarj İstasyonu Özellik Mühendisliği
+
+Mevcut elektrikli araç şarj istasyonları, OpenStreetMap üzerindeki amenity=charging_station etiketi kullanılarak Çankaya ve çevresindeki 2,5 kilometrelik tampon alan için toplanmıştır.
+
+Her şarj istasyonu kaydı temizlenmiş, analiz koordinat sistemine dönüştürülmüş ve benzersiz bir kimlikle eşleştirilmiştir.
+
+Grid bazında aşağıdaki sütunlar üretilmiştir:
+
+charging_station_count
+
+has_existing_charging_station
+
+distance_to_nearest_charging_station_m
+
+charging_station_count_within_1000m
+
+charging_station_count_within_2000m
+
+known_charging_capacity
+
+charging_capacity_record_count
+
+ac_station_count_within_1000m
+
+dc_station_count_within_1000m
+
+Grid eşleştirmeleri ve yarıçap tabanlı erişilebilirlik hesapları için temsili istasyon noktaları kullanılmıştır. Mesafeler, izdüşümlü ve metre tabanlı koordinat sisteminde her grid hücresinin merkezinden hesaplanmıştır.
+
+İlk Şarj İstasyonu İstatistikleri
+
+Haritalanmış benzersiz şarj istasyonu: 18
+
+En az bir şarj istasyonu içeren grid hücresi: 9
+
+1.000 metre içinde istasyon bulunan grid hücresi: 322
+
+2.000 metre içinde istasyon bulunan grid hücresi: 1.156
+
+En yakın şarj istasyonuna medyan uzaklık: 5.417,67 metre
+
+En yakın şarj istasyonuna maksimum uzaklık: 26.524,34 metre
+
+AC bağlantısı haritalanmış istasyon: 6
+
+DC bağlantısı haritalanmış istasyon: 3
+
+
+
+Bilimsel Sınırlama
+
+OpenStreetMap, mevcut çalışma alanı ve çevresindeki tampon bölgede yalnızca 18 haritalanmış şarj istasyonu kaydı içermektedir. Bu nedenle söz konusu kaynak, eksiksiz ve resmi bir şarj istasyonu envanteri olarak değerlendirilmemelidir.
+
+Nihai makine öğrenmesi hedefi oluşturulmadan önce şarj istasyonu veri kümesinin, açık lisanslı ek veri kaynaklarıyla zenginleştirilmesi planlanmaktadır.
+
+charging_station_count ve has_existing_charging_station sütunları hedef veya betimleyici değişkenlerdir. Mevcut istasyon dağılımını yeniden üretmeyi amaçlayan bir modelde doğrudan tahmin girdisi olarak kullanılmamalıdır.
+
+Mesafe ve çevredeki istasyon sayısı sütunları da model geliştirme sırasında veri sızıntısını önleyecek biçimde değerlendirilmelidir.
+
+Üretilen Grid Çıktıları
+
+Mevcut veri hattı aşağıdaki temel dosyaları üretmektedir:
+
 data/raw/cankaya_boundary_osm.geojson
 data/processed/cankaya_grid_250m.gpkg
 data/processed/cankaya_grid_250m.geojson
 docs/cankaya_grid_preview.png
 docs/cankaya_grid_summary.md
-```
 
-Large generated data files are excluded from Git using `.gitignore`. They can be reproduced by running the data pipeline.
+Yol, otopark ve şarj istasyonu veri hatları da ilgili ara veri dosyalarını, işlenmiş veri kümelerini, görselleri ve teknik özetleri üretmektedir.
 
-## Planned Technologies
+Büyük ham, ara ve işlenmiş veri dosyaları .gitignore kullanılarak Git deposunun dışında tutulur. Bu dosyalar veri hatları yeniden çalıştırılarak üretilebilir.
 
-### Data Science and Machine Learning
+Kullanılan ve Planlanan Teknolojiler
 
-- Python
-- NumPy
-- Pandas
-- GeoPandas
-- Scikit-learn
-- XGBoost
-- LightGBM
-- SHAP
-- Matplotlib
-- JupyterLab
+Veri Bilimi ve Makine Öğrenmesi
 
-### Geospatial Processing
+Python
 
-- OpenStreetMap
-- OSMnx
-- Shapely
-- PyProj
-- Pyogrio
-- GeoJSON
-- GeoPackage
+NumPy
 
-### Backend and Data Storage
+Pandas
 
-- FastAPI
-- PostgreSQL
-- PostGIS
-- Pydantic
+GeoPandas
 
-### Frontend and Visualization
+Scikit-learn
 
-- React
-- OpenLayers
-- JavaScript
-- HTML
-- CSS
+XGBoost
 
-### Engineering and MLOps
+LightGBM
 
-- Git
-- GitHub
-- Docker
-- MLflow
-- Pytest
+SHAP
 
-## Project Structure
+Matplotlib
 
-```text
+JupyterLab
+
+Coğrafi Veri İşleme
+
+OpenStreetMap
+
+OSMnx
+
+Shapely
+
+PyProj
+
+Pyogrio
+
+GeoJSON
+
+GeoPackage
+
+Backend ve Veri Saklama
+
+FastAPI
+
+PostgreSQL
+
+PostGIS
+
+Pydantic
+
+Frontend ve Görselleştirme
+
+React
+
+OpenLayers
+
+JavaScript
+
+HTML
+
+CSS
+
+Yazılım Mühendisliği ve MLOps
+
+Git
+
+GitHub
+
+Docker
+
+MLflow
+
+Pytest
+
+Proje Yapısı
+
 voltsight-ai/
 |-- backend/
 |   `-- app/
@@ -316,7 +408,9 @@ voltsight-ai/
 |
 |-- docs/
 |   |-- cankaya_grid_preview.png
-|   `-- cankaya_grid_summary.md
+|   |-- cankaya_grid_summary.md
+|   |-- cankaya_parking_features_preview.png
+|   `-- cankaya_charging_features_preview.png
 |
 |-- frontend/
 |
@@ -337,184 +431,250 @@ voltsight-ai/
 |-- .gitignore
 |-- README.md
 `-- requirements.txt
-```
 
-## Local Installation
+Yerel Kurulum
 
-Clone the repository:
+Depoyu klonlayın:
 
-```bash
-git clone https://github.com/YOUR-GITHUB-USERNAME/voltsight-ai.git
-```
-
-Enter the project directory:
-
-```bash
+git clone https://github.com/ilginbor/voltsight-ai.git
 cd voltsight-ai
-```
 
-Create a Python virtual environment:
+Python sanal ortamını oluşturun:
 
-```bash
 python -m venv .venv
-```
 
-Activate the virtual environment on Windows PowerShell:
+Windows PowerShell üzerinde sanal ortamı etkinleştirin:
 
-```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv\Scripts\Activate.ps1
-```
 
-Install project dependencies:
+Paket yöneticisini güncelleyin ve proje bağımlılıklarını kurun:
 
-```bash
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
-```
 
-## Running the Study Grid Pipeline
+Çalışma Gridi Veri Hattını Çalıştırma
 
-Run the Çankaya boundary and grid generation pipeline from the project root:
+Çankaya idari sınırı ve analiz gridi üretim hattını proje ana dizininden çalıştırın:
 
-```bash
 python src/voltsight/data/create_study_grid.py
-```
 
-When the pipeline completes successfully, it creates:
+Veri hattı başarıyla tamamlandığında aşağıdaki çıktıları üretir:
 
-- The Çankaya boundary
-- The 250 × 250 meter analysis grid
-- A GeoPackage output
-- A GeoJSON output
-- A grid preview image
-- A Markdown summary report
+Çankaya idari sınırı
 
-## Data Policy
+250 × 250 metre analiz gridi
 
-VoltSight is designed to use public and openly licensed datasets.
+GeoPackage çıktısı
 
-Large raw, intermediate and processed data files are not stored directly in the Git repository. The repository instead contains reproducible Python pipelines that acquire and generate the required datasets.
+GeoJSON çıktısı
 
-Private, restricted or non-public datasets must not be added to the repository without permission.
+Grid önizleme görseli
 
-## Roadmap
+Markdown özet raporu
 
-### Phase 1 — Project Initialization
+Testleri Çalıştırma
 
-- [x] Create the GitHub repository
-- [x] Configure the Python virtual environment
-- [x] Create the full-stack project structure
-- [x] Add project documentation
-- [x] Configure Git ignore rules
+Proje ana dizininde aşağıdaki komutu çalıştırın:
 
-### Phase 2 — Study Area Preparation
+python -m pytest
 
-- [x] Acquire the Çankaya administrative boundary
-- [x] Transform the boundary into a projected coordinate system
-- [x] Generate 250 × 250 meter analysis grids
-- [x] Create the grid preview and summary
-- [x] Validate the study grid geometries
-- [x] Add automated tests for the grid pipeline
+Bu komut; grid, yol, otopark ve şarj istasyonu veri hatları için tanımlanan otomatik testleri çalıştırır.
 
-### Phase 3 — Spatial Data Collection
+Veri Politikası
 
-- [x] Collect the road network
-- [x] Calculate grid-level road features
-- [x] Validate road-feature outputs with automated tests
-- [x] Collect parking areas
-- [x] Calculate grid-level parking features
-- [x] Validate parking-feature outputs with automated tests
-- [x] Collect OpenStreetMap charging stations
-- [x] Calculate grid-level charging-station features
-- [x] Validate charging-station outputs with automated tests
-- [ ] Find an additional open charging-station data source
-- [ ] Merge and deduplicate charging-station inventories
-- [ ] Collect shopping centers and commercial locations
-- [ ] Collect hospitals and universities
-- [ ] Collect fuel stations
-- [ ] Collect public transport features
-- [ ] Collect residential and commercial land-use information
-### Phase 4 — Feature Engineering
+VoltSight, kamuya açık ve açık lisanslı veri kümelerini kullanacak şekilde tasarlanmıştır.
 
-- [ ] Calculate distance to main roads
-- [ ] Calculate road density
-- [ ] Calculate nearby point-of-interest counts
-- [ ] Calculate parking accessibility
-- [ ] Calculate existing charging station density
-- [ ] Calculate distance-based urban features
-- [ ] Build the final machine learning dataset
-- [ ] Validate missing values and spatial consistency
+Büyük ham, ara ve işlenmiş veri dosyaları doğrudan Git deposunda saklanmaz. Bunun yerine gerekli veri kümelerini elde eden ve yeniden üreten Python veri hatları depoda tutulur.
 
-### Phase 5 — Machine Learning
+Özel, kısıtlı veya kamuya açık olmayan veri kümeleri izin alınmadan projeye eklenmemelidir.
 
-- [ ] Perform exploratory data analysis
-- [ ] Define target labels and control samples
-- [ ] Train a Logistic Regression baseline
-- [ ] Train a Random Forest baseline
-- [ ] Train an XGBoost model
-- [ ] Compare model performance
-- [ ] Perform spatial cross-validation
-- [ ] Tune model hyperparameters
+Yol Haritası
 
-### Phase 6 — Explainable AI
+Aşama 1 — Proje Başlatma
 
-- [ ] Add SHAP global explanations
-- [ ] Add grid-level local explanations
-- [ ] Calculate prediction confidence
-- [ ] Add uncertainty indicators
-- [ ] Analyze model limitations and possible bias
+GitHub deposunu oluştur
 
-### Phase 7 — Backend
+Python sanal ortamını yapılandır
 
-- [ ] Initialize the FastAPI application
-- [ ] Add health-check endpoints
-- [ ] Add grid and suitability endpoints
-- [ ] Integrate the trained model
-- [ ] Connect PostgreSQL and PostGIS
-- [ ] Add request validation
-- [ ] Add backend tests
+Tam kapsamlı proje klasör yapısını oluştur
 
-### Phase 8 — Frontend
+Proje dokümantasyonunu ekle
 
-- [ ] Initialize the React application
-- [ ] Integrate OpenLayers
-- [ ] Display the Çankaya grid
-- [ ] Color grid cells by suitability score
-- [ ] Display prediction explanations
-- [ ] Add filters and layer controls
-- [ ] Add candidate location details
-- [ ] Add responsive interface design
+Git ignore kurallarını yapılandır
 
-### Phase 9 — Deployment and Documentation
+Aşama 2 — Çalışma Alanını Hazırlama
 
-- [ ] Add Docker configuration
-- [ ] Add MLflow experiment tracking
-- [ ] Add automated testing workflow
-- [ ] Prepare architecture diagrams
-- [ ] Prepare the final technical report
-- [ ] Record a demo video
-- [ ] Deploy the application
+Çankaya idari sınırını elde et
 
-## Important Scientific Limitation
+İdari sınırı izdüşümlü koordinat sistemine dönüştür
 
-The first version of VoltSight will estimate **location suitability based on spatial patterns and available urban features**.
+250 × 250 metre analiz gridlerini oluştur
 
-Unless real station utilization, energy consumption, occupancy or revenue data becomes available, the model results must not be interpreted as guaranteed demand, profitability or commercial success.
+Grid önizlemesini ve teknik özeti üret
 
-VoltSight will clearly distinguish between:
+Grid geometrilerini doğrula
 
-- Spatial suitability
-- Predicted demand
-- Financial feasibility
-- Model confidence
+Grid veri hattı için otomatik testler ekle
 
-This distinction is necessary for scientifically responsible and transparent machine learning.
+Aşama 3 — Mekânsal Veri Toplama
 
-## License
+Yol ağını topla
 
-A project license will be selected after reviewing the licenses and attribution requirements of all external datasets used by VoltSight.
+Grid bazında yol özelliklerini hesapla
 
-## Author
+Yol özelliklerini otomatik testlerle doğrula
 
-Developed as an end-to-end artificial intelligence, data science and software engineering portfolio project.
+Otopark alanlarını topla
+
+Grid bazında otopark özelliklerini hesapla
+
+Otopark özelliklerini otomatik testlerle doğrula
+
+OpenStreetMap şarj istasyonlarını topla
+
+Grid bazında şarj istasyonu özelliklerini hesapla
+
+Şarj istasyonu çıktılarını otomatik testlerle doğrula
+
+Ek bir açık şarj istasyonu veri kaynağı bul
+
+Şarj istasyonu envanterlerini birleştir ve mükerrer kayıtları temizle
+
+Alışveriş merkezlerini ve ticari noktaları topla
+
+Hastane ve üniversiteleri topla
+
+Akaryakıt istasyonlarını topla
+
+Toplu taşıma özelliklerini topla
+
+Konut ve ticari arazi kullanım verilerini topla
+
+Aşama 4 — Özellik Mühendisliği
+
+Ana yola uzaklığı hesapla
+
+Yol yoğunluğunu hesapla
+
+Otopark erişilebilirliğini hesapla
+
+Mevcut şarj istasyonu yoğunluğunu hesapla
+
+Şarj istasyonlarına uzaklık özelliklerini hesapla
+
+Yakındaki ilgi noktası sayılarını hesapla
+
+Ek mesafe tabanlı kentsel özellikleri hesapla
+
+Nihai makine öğrenmesi veri kümesini oluştur
+
+Eksik değerleri ve mekânsal tutarlılığı doğrula
+
+Aşama 5 — Makine Öğrenmesi
+
+Keşifsel veri analizi gerçekleştir
+
+Hedef etiketleri ve kontrol örneklerini tanımla
+
+Lojistik Regresyon temel modelini eğit
+
+Rastgele Orman temel modelini eğit
+
+XGBoost modelini eğit
+
+Modellerin performansını karşılaştır
+
+Mekânsal çapraz doğrulama uygula
+
+Model hiperparametrelerini optimize et
+
+Aşama 6 — Açıklanabilir Yapay Zekâ
+
+SHAP genel açıklamalarını ekle
+
+Grid bazında yerel açıklamalar üret
+
+Tahmin güven değerlerini hesapla
+
+Belirsizlik göstergeleri ekle
+
+Model sınırlamalarını ve olası önyargıları analiz et
+
+Aşama 7 — Backend
+
+FastAPI uygulamasını başlat
+
+Sağlık kontrolü endpointlerini ekle
+
+Grid ve uygunluk endpointlerini ekle
+
+Eğitilmiş modeli entegre et
+
+PostgreSQL ve PostGIS bağlantısını kur
+
+İstek doğrulama mekanizmasını ekle
+
+Backend testlerini yaz
+
+Aşama 8 — Frontend
+
+React uygulamasını başlat
+
+OpenLayers entegrasyonunu gerçekleştir
+
+Çankaya gridini haritada göster
+
+Grid hücrelerini uygunluk skoruna göre renklendir
+
+Tahmin açıklamalarını göster
+
+Filtre ve katman kontrollerini ekle
+
+Aday konum ayrıntılarını göster
+
+Duyarlı arayüz tasarımı ekle
+
+Aşama 9 — Dağıtım ve Dokümantasyon
+
+Docker yapılandırmasını ekle
+
+MLflow deney takibini ekle
+
+Otomatik test iş akışını ekle
+
+Mimari diyagramları hazırla
+
+Nihai teknik raporu hazırla
+
+Demo videosu kaydet
+
+Uygulamayı yayımla
+
+Önemli Bilimsel Sınırlama
+
+VoltSight'ın ilk sürümü, mekânsal örüntülere ve mevcut kentsel özelliklere dayalı konum uygunluğu tahmin edecektir.
+
+Gerçek istasyon kullanım oranı, enerji tüketimi, doluluk veya gelir verileri elde edilmediği sürece model sonuçları; garantili talep, kârlılık veya ticari başarı olarak yorumlanmamalıdır.
+
+VoltSight aşağıdaki kavramları açık biçimde birbirinden ayıracaktır:
+
+Mekânsal uygunluk
+
+Tahmin edilen talep
+
+Finansal uygulanabilirlik
+
+Model güveni
+
+Bu ayrım, bilimsel açıdan sorumlu ve şeffaf bir makine öğrenmesi yaklaşımı için gereklidir.
+
+Lisans
+
+Projede kullanılan tüm dış veri kümelerinin lisansları ve atıf koşulları incelendikten sonra uygun bir proje lisansı seçilecektir.
+
+Geliştirici
+
+Ilgın Bor
+
+Bilgisayar Mühendisliği öğrencisiYapay zekâ, veri bilimi, siber güvenlik ve coğrafi bilgi sistemleri alanlarıyla ilgileniyorum.
