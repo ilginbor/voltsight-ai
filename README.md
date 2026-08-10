@@ -1,405 +1,473 @@
-VoltSight
+﻿@'
+# VoltSight
 
-Akıllı elektrikli araç şarj istasyonu yer seçimi ve kentsel altyapı planlaması için açıklanabilir yapay zekâ projesi.
+**Akıllı elektrikli araç şarj istasyonu yer seçimi için açıklanabilir mekânsal karar destek sistemi.**
 
-VoltSight; yeni elektrikli araç şarj istasyonları için uygun konumları belirlemeyi amaçlayan, uçtan uca bir yapay zekâ ve mekânsal veri bilimi projesidir.
+VoltSight; yeni elektrikli araç şarj istasyonları için uygun bölgeleri belirlemek amacıyla açık coğrafi verileri, mekânsal özellik mühendisliğini, açıklanabilir skorlama yöntemlerini ve makine öğrenmesi için hazırlanmış veri kümelerini bir araya getiren uçtan uca bir veri bilimi projesidir.
+
+Proje başlangıçta **Çankaya, Ankara** üzerinde 250 × 250 metre çözünürlüklü bir pilot çalışma olarak geliştirilmiş, daha sonra veri toplama ve analiz mimarisi **Ankara ili geneline** ölçeklenmiştir.
+
+> VoltSight'ın mevcut ana çıktısı, bir istasyonun kurulması gerektiğine dair olasılık tahmini değil; erişilebilirlik, otopark uygulanabilirliği ve mevcut şarj altyapısı açığını birlikte değerlendiren **açıklanabilir bir uygunluk sıralamasıdır**.
+
+---
+
+## Ana Sonuçlar
+
+| Ölçüt | Ankara |
+|---|---:|
+| Çalışma alanı | Ankara ili |
+| Yaklaşık sınır alanı | 25.680,96 km² |
+| Grid çözünürlüğü | 500 × 500 m |
+| Grid hücresi | 102.745 |
+| Birleştirilmiş yol parçaları | 177.714 |
+| Toplam yol uzunluğu | 29.274,14 km |
+| Benzersiz OSM otoparkı | 2.959 |
+| Nihai analiz şarj istasyonu | 69 |
+| Mevcut istasyon içeren grid | 46 |
+| Yeni istasyon adayı grid | 102.699 |
+| Eligibility filtresini geçen aday | 10.770 |
+| Nihai shortlist | 20 |
+| Minimum shortlist aralığı | 25 km |
+| En yüksek suitability skoru | 92,5548 |
+| En yüksek aday | `ANK_004429` |
+| Shortlist minimum suitability | 70,4635 |
+| Otomatik test | 300+ |
+
+---
+
+## Ankara Suitability Haritası
+
+![Ankara Candidate Suitability](docs/ankara_suitability_map.png)
+
+Harita, 102.699 yeni istasyon adayı grid hücresinin açıklanabilir suitability skorlarını göstermektedir.
+
+Skorlar Ankara aday dağılımına göre göreli olarak hesaplanır. Bu nedenle yüksek skor, hücrenin Ankara içindeki diğer adaylara kıyasla güçlü bir uygulanabilirlik ve altyapı ihtiyacı kombinasyonuna sahip olduğunu ifade eder.
+
+---
+
+## Final 20 Aday Bölge
+
+![Ankara Final 20 Candidates](docs/ankara_final_shortlist_map.png)
+
+İlk suitability sıralamasından doğrudan ilk 20 hücreyi almak yerine, yatırım önerilerinin birbirinin hemen yanında kümelenmesini engellemek amacıyla mekânsal çeşitlilik kuralı uygulanmıştır.
+
+Final shortlist:
+
+- En az 60 suitability
+- En az 60 feasibility
+- En az 50 need
+- Adaylar arasında en az 25 km mesafe
+- Toplam 20 aday
 
-Proje; açık coğrafi verileri, mekânsal özellik mühendisliğini, makine öğrenmesini ve açıklanabilir yapay zekâ yöntemlerini bir araya getirerek kentsel alanları değerlendirir ve şarj istasyonu uygunluk skorları üretmeyi hedefler.
+koşullarını kullanır.
 
-Proje durumu: Çalışma alanı, analiz gridleri, yol, otopark ve mevcut şarj istasyonu özellikleri hazırlanmıştır. Proje; ek mekânsal veri kaynaklarının toplanması, özellik mühendisliğinin genişletilmesi ve makine öğrenmesi veri kümesinin oluşturulması aşamasında devam etmektedir.
+25 km minimum aralık altında:
 
-Çalışma Alanı
-
-VoltSight'ın ilk sürümü Çankaya, Ankara, Türkiye bölgesine odaklanmaktadır.
-
-Çankaya ilçe sınırı, sabit 250 × 250 metre boyutundaki analiz hücrelerine ayrılmıştır. Her grid hücresi; ulaşım, altyapı, arazi kullanımı ve kentsel hareketlilik özellikleri kullanılarak ayrı ayrı değerlendirilecektir.
-
-Mevcut İlerleme
-
-Şu ana kadar tamamlanan çalışmalar:
-
-Proje deposu ve klasör yapısı oluşturuldu.
-
-Python sanal ortamı yapılandırıldı.
-
-Veri bilimi ve coğrafi veri işleme bağımlılıkları kuruldu.
-
-Çankaya idari sınırı OpenStreetMap üzerinden elde edildi.
-
-İdari sınır, metre tabanlı izdüşümlü bir koordinat sistemine dönüştürüldü.
-
-250 × 250 metre boyutunda mekânsal analiz gridi üretildi.
-
-GeoPackage ve GeoJSON grid çıktıları oluşturuldu.
-
-Grid önizleme görseli ve teknik özet raporu üretildi.
-
-Geometri, şema, koordinat sistemi ve grid bütünlüğü için Pytest testleri yazıldı.
-
-Yol geometrileri, yol uzunlukları, yoğunluk hesapları ve ana yola uzaklık değerleri üretildi.
-
-Yol özellikleri ve makine öğrenmesi çıktıları için otomatik bütünlük testleri eklendi.
-
-Çankaya ve çevresindeki OpenStreetMap otopark verileri toplandı.
-
-Grid bazında otopark erişilebilirliği, alanı, kapasitesi ve yakınlık özellikleri üretildi.
-
-Otopark geometrileri, yarıçap sayımları, mesafe hesapları ve alan oranları test edildi.
-
-OpenStreetMap üzerindeki mevcut elektrikli araç şarj istasyonları toplandı ve temizlendi.
-
-Grid bazında şarj istasyonu yakınlığı, yoğunluğu, kapasitesi ve bağlantı türü özellikleri üretildi.
-
-İstasyon geometrileri, grid eşleştirmeleri, yarıçap sayımları ve en yakın mesafe hesapları test edildi.
-
-Proje test paketinde 144 başarılı test seviyesine ulaşıldı.
-
-Çalışma Gridi Önizlemesi
-
-
-
-Yukarıdaki grid hücreleri VoltSight'ın temel analiz birimlerini oluşturmaktadır. Makine öğrenmesi özellikleri ve uygunluk tahminleri her hücre için ayrı ayrı hesaplanacaktır.
-
-Proje Hedefleri
-
-Açık ve yeniden kullanılabilir coğrafi veri kaynaklarını toplamak
-
-Tekrar çalıştırılabilir bir mekânsal veri işleme hattı geliştirmek
-
-Sabit boyutlu kentsel analiz gridleri üretmek
-
-Ulaşım, altyapı ve kentsel aktivite özellikleri çıkarmak
-
-Makine öğrenmesi modellerini eğitmek ve karşılaştırmak
-
-Şarj istasyonu yer uygunluğu skorları üretmek
-
-Tahminleri SHAP ile açıklamak
-
-Tahmin belirsizliğini değerlendirmek
-
-Model sonuçlarını FastAPI üzerinden sunmak
-
-Sonuçları React ve OpenLayers tabanlı bir web uygulamasında görselleştirmek
-
-Projeyi Docker ile paketlemek
-
-Makine öğrenmesi deneylerini MLflow ile takip etmek
-
-Planlanan Mekânsal Özellikler
-
-Her grid hücresinde aşağıdaki özelliklerin bulunması hedeflenmektedir:
-
-En yakın ana yola uzaklık
-
-Toplam yol uzunluğu ve yol yoğunluğu
-
-Yakındaki otopark sayısı
-
-En yakın otoparka uzaklık
-
-Yakındaki ilgi noktası sayısı
-
-Ticari aktivite yoğunluğu
-
-Konut aktivitesi yoğunluğu
-
-Mevcut şarj istasyonlarına uzaklık
-
-Belirli yarıçaplardaki mevcut şarj istasyonu sayısı
-
-Elektrik altyapısına uzaklık
-
-Nüfus ve kentsel yoğunluk göstergeleri
-
-Hastane, üniversite ve alışveriş merkezlerine yakınlık
-
-Akaryakıt istasyonlarına yakınlık
-
-Toplu taşıma erişilebilirliği
-
-Arazi kullanım özellikleri
-
-Yöntem
-
-VoltSight için planlanan genel iş akışı:
-
-Açık Coğrafi Veriler
-        |
-        v
-Veri Temizleme ve Doğrulama
-        |
-        v
-250 x 250 Metre Analiz Gridi
-        |
-        v
-Mekânsal Özellik Mühendisliği
-        |
-        v
-Keşifsel Veri Analizi
-        |
-        v
-Temel Makine Öğrenmesi Modelleri
-        |
-        v
-Gelişmiş Uygunluk Modeli
-        |
-        v
-SHAP Açıklamaları ve Belirsizlik Analizi
-        |
-        v
-FastAPI Backend
-        |
-        v
-React ve OpenLayers Web Uygulaması
-
-Çalışma Gridi Üretimi
-
-Çalışma gridi veri hattı aşağıdaki işlemleri gerçekleştirir:
-
-OpenStreetMap üzerinden Çankaya idari sınırını sorgular.
-
-Dönen geometrinin poligon yapısında olduğunu doğrular.
-
-Orijinal sınırı EPSG:4326 koordinat sisteminde saklar.
-
-Bölge için uygun yerel UTM koordinat sistemini belirler.
-
-İdari sınırı metre tabanlı koordinat sistemine dönüştürür.
-
-Sabit 250 × 250 metre kare hücreler oluşturur.
-
-Merkez noktası Çankaya sınırı içinde kalan hücreleri seçer.
-
-Her grid hücresine benzersiz bir kimlik atar.
-
-Grid merkez koordinatlarını ve hücre alanlarını hesaplar.
-
-GeoPackage, GeoJSON, önizleme görseli ve özet raporu üretir.
-
-Yol Özellik Mühendisliği
-
-OpenStreetMap üzerindeki sürüşe uygun yol ağı, Çankaya ilçesi ve ilçe çevresindeki ek bir kilometrelik tampon alan için indirilmiştir.
-
-Yol geometrileri, 250 × 250 metre boyutundaki analiz hücreleriyle kesiştirilmiştir. Her grid hücresi için aşağıdaki özellikler üretilmiştir:
+- 20 aday seçilmiştir.
+- Gözlenen minimum mesafe 25,10 km'dir.
+- Seçilen en düşük suitability skoru 70,4635'tir.
+- Seçilen en düşük feasibility skoru 68,9182'dir.
+- Seçilen en düşük need skoru 56,0840'tır.
+- Shortlist'e giren en düşük orijinal suitability sırası 5.815'tir.
+
+Bu yaklaşım, yalnızca yüksek skor üretmek yerine Ankara geneline yayılmış farklı yatırım bölgeleri önermeyi amaçlar.
+
+---
+
+# Proje Mimarisi
+
+VoltSight Ankara veri hattı aşağıdaki temel aşamalardan oluşur:
+
+```text
+Ankara Administrative Boundary
+              |
+              v
+       500 x 500 m Grid
+              |
+              v
+     Road Data Collection
+              |
+              v
+   Road Feature Engineering
+              |
+              v
+    Parking Data Collection
+              |
+              v
+ Parking Feature Engineering
+              |
+              v
+  Charging Station Inventory
+              |
+              v
+Charging Feature Engineering
+              |
+              v
+ Leakage-Safe Model Dataset
+              |
+              v
+    Candidate Site Dataset
+              |
+              v
+Explainable Suitability Scoring
+              |
+              v
+     Eligibility Filters
+              |
+              v
+  Spatial Diversity Selection
+              |
+              v
+       Final 20 Sites
+       Çalışma Alanları
+Çankaya Pilot Çalışması
+
+VoltSight'ın ilk prototipi Çankaya üzerinde geliştirilmiştir.
+
+Çankaya çalışması:
+
+250 × 250 metre grid çözünürlüğü
+7.227 grid hücresi
+Yol, otopark ve şarj altyapısı özellikleri
+7.217 yeni istasyon adayı
+Explainable suitability scoring
+20 adaylık mekânsal shortlist
+
+üretmiştir.
+
+Pilot çalışma, veri modellerinin, özellik mühendisliği fonksiyonlarının, leakage politikasının ve suitability metodolojisinin geliştirilmesi için kullanılmıştır.
+
+Ankara Ölçeklendirmesi
+
+Pilot mimari daha sonra Ankara ilinin tamamına ölçeklenmiştir.
+
+Ankara çalışmasında:
+
+Grid çözünürlüğü:    500 m
+Grid sayısı:         102.745
+Analiz CRS:          EPSG:32636
+Grid ID formatı:     ANK_000001 ...
+
+kullanılmaktadır.
+
+Büyük veri hacmi nedeniyle yol ve otopark veri toplama süreçlerinde parçalı ve yeniden devam ettirilebilir veri hatları geliştirilmiştir.
+
+Yol Veri Hattı
+
+Ankara'nın tamamındaki OpenStreetMap sürüş ağı tek sorguda işlenmek yerine 8 km'lik çekirdek parçalara ayrılmıştır.
+
+Yol indirme mimarisi:
+
+8 km core chunk
+     +
+1 km download buffer
+     |
+     v
+Overpass / OSMnx
+     |
+     v
+Per-chunk cache
+     |
+     v
+Resume support
+     |
+     v
+Core clipping
+     |
+     v
+Unified Ankara road network
+
+Birleştirme sonucunda:
+
+Final road pieces:       177.714
+Main-road pieces:         54.180
+Total road length:     29.274,14 km
+
+elde edilmiştir.
+
+Grid seviyesinde başlıca yol özellikleri:
 
 road_length_m
-
 road_segment_count
-
 main_road_length_m
-
 main_road_segment_count
-
 road_density_km_per_km2
-
 distance_to_main_road_m
 
-nearest_main_road_type
+Ankara grid sonuçları:
 
-Üretilen veri kümesi 7.227 grid kaydı içermektedir.
+Road data içeren grid:       28.676
+Road data içermeyen grid:    74.069
+Ortalama yol yoğunluğu:        1,14 km/km²
+Ana yola medyan uzaklık:     958,35 m
+Ana yola maksimum uzaklık: 23.080,08 m
+Otopark Veri Hattı
 
-İlk Yol İstatistikleri
+OpenStreetMap üzerindeki amenity=parking nesneleri Ankara için parçalı olarak indirilmiş ve tekrar eden kayıtlar OSM kimlikleri üzerinden birleştirilmiştir.
 
-Yol verisi içeren grid hücresi: 3.346
+Ham chunk kayıtlarından:
 
-Yol verisi içermeyen grid hücresi: 3.881
+Raw parking records:       4.623
+Duplicate records removed: 1.664
+Unique parking features:   2.959
+Known-capacity features:     113
 
-Ortalama yol yoğunluğu: 5,48 km/km²
+elde edilmiştir.
 
-Ana yola medyan uzaklık: 375,49 metre
-
-Ana yola maksimum uzaklık: 4.037,23 metre
-
-Yol özellikleri veri hattı ve üretilen çıktılar otomatik Pytest kontrolleriyle doğrulanmaktadır.
-
-Otopark Özellik Mühendisliği
-
-OpenStreetMap üzerindeki amenity=parking etiketi kullanılarak Çankaya ve ilçe çevresindeki bir kilometrelik tampon alanda bulunan otopark verileri toplanmıştır.
-
-Her otopark kaydı temizlenmiş, analiz koordinat sistemine dönüştürülmüş ve benzersiz bir kimlikle eşleştirilmiştir.
-
-Grid bazında aşağıdaki özellikler üretilmiştir:
+Grid seviyesinde üretilen özellikler:
 
 parking_count
-
 parking_area_m2
-
 parking_area_ratio
-
 distance_to_nearest_parking_m
-
 parking_count_within_500m
-
 parking_count_within_1000m
-
 known_parking_capacity
-
 parking_capacity_record_count
 
-Poligon biçimindeki otopark alanları 250 × 250 metre analiz gridiyle kesiştirilmiştir. Yerel grid atamaları ve yarıçap tabanlı erişilebilirlik hesapları için temsili noktalar kullanılmıştır.
+Ankara sonuçları:
 
-Veri sınırlaması: OpenStreetMap üzerindeki otopark kapsamı ve kapasite bilgileri eksik olabilir. Bu özellikler, resmi ve eksiksiz bir otopark envanterini değil, haritalanmış otopark erişilebilirliğini temsil eder.
+Otopark içeren grid:                  984
+500 m içinde otopark bulunan grid:  1.906
+1 km içinde otopark bulunan grid:   3.960
+Medyan en yakın otopark mesafesi: 11.823,59 m
+Maksimum mesafe:                  64.185,46 m
+Veri sınırlaması
 
+OpenStreetMap otopark kapsamı ve kapasite bilgileri eksik olabilir.
 
+Bu değişkenler resmi ve eksiksiz bir otopark envanterini değil, haritalanmış otopark erişilebilirliğini temsil eder.
 
-Şarj İstasyonu Özellik Mühendisliği
+Şarj İstasyonu Veri Hattı
 
-Mevcut elektrikli araç şarj istasyonları, OpenStreetMap üzerindeki amenity=charging_station etiketi kullanılarak Çankaya ve çevresindeki 2,5 kilometrelik tampon alan için toplanmıştır.
+Şarj istasyonu verisi yol verisine göre oldukça seyrek olduğu için 488 ayrı sorgu kullanmak yerine Ankara genelini kapsayan tek bir seyrek Overpass sorgusu geliştirilmiştir.
 
-Her şarj istasyonu kaydı temizlenmiş, analiz koordinat sistemine dönüştürülmüş ve benzersiz bir kimlikle eşleştirilmiştir.
+OpenStreetMap sorgusu:
 
-Grid bazında aşağıdaki sütunlar üretilmiştir:
+amenity=charging_station
+
+etiketini kullanmaktadır.
+
+Ankara-wide sorgu, Çankaya pilotundaki 18 bilinen OSM istasyonunun 18'ini de yeniden bulmuştur.
+
+Nihai analiz envanteri:
+
+OSM station:                 68
+Reviewed EPDK supplement:     1
+Final analysis stations:     69
+Mapped AC stations:          13
+Mapped DC stations:           7
+Known-capacity stations:     23
+
+EPDK bileşeni, Çankaya pilotunda daha önce incelenmiş tek koordinat destek kaydıdır.
+
+Bu kayıt Ankara geneli için eksiksiz bir EPDK istasyon envanteri olarak yorumlanmamalıdır.
+
+Grid seviyesinde üretilen özellikler:
 
 charging_station_count
-
 has_existing_charging_station
-
 distance_to_nearest_charging_station_m
-
 charging_station_count_within_1000m
-
 charging_station_count_within_2000m
-
 known_charging_capacity
-
 charging_capacity_record_count
-
 ac_station_count_within_1000m
-
 dc_station_count_within_1000m
 
-Grid eşleştirmeleri ve yarıçap tabanlı erişilebilirlik hesapları için temsili istasyon noktaları kullanılmıştır. Mesafeler, izdüşümlü ve metre tabanlı koordinat sisteminde her grid hücresinin merkezinden hesaplanmıştır.
+Ankara sonuçları:
 
-İlk Şarj İstasyonu İstatistikleri
+Grid sayısı:                              102.745
+İstasyon içeren grid:                          46
+1 km içinde istasyon bulunan grid:            463
+2 km içinde istasyon bulunan grid:          1.399
+Medyan en yakın istasyon mesafesi:      31.631,14 m
+Maksimum en yakın istasyon mesafesi:   125.676,81 m
+Leakage-Safe Model Dataset
 
-Haritalanmış benzersiz şarj istasyonu: 18
+Mevcut şarj istasyonu dağılımını tahmin etmeyi amaçlayan bir modelde şarj istasyonlarından türetilen değişkenlerin predictor olarak kullanılması ciddi veri sızıntısına neden olabilir.
 
-En az bir şarj istasyonu içeren grid hücresi: 9
+Bu nedenle VoltSight, model geliştirme veri kümesini ve site-selection veri kümesini birbirinden ayırır.
 
-1.000 metre içinde istasyon bulunan grid hücresi: 322
+Training Dataset
+Rows:                    102.745
+Predictor features:           14
+Positive target rows:         46
+Negative target rows:    102.699
+Charging leakage:              0
 
-2.000 metre içinde istasyon bulunan grid hücresi: 1.156
+Training predictor'ları yalnızca yol ve otopark özelliklerinden oluşur.
 
-En yakın şarj istasyonuna medyan uzaklık: 5.417,67 metre
+Şarj altyapısından türetilen:
 
-En yakın şarj istasyonuna maksimum uzaklık: 26.524,34 metre
+distance_to_nearest_charging_station_m
+charging_station_count_within_1000m
+charging_station_count_within_2000m
+ac_station_count_within_1000m
+dc_station_count_within_1000m
 
-AC bağlantısı haritalanmış istasyon: 6
+değişkenleri mevcut istasyon hedefini öğrenen modelin predictor'ları arasına alınmaz.
 
-DC bağlantısı haritalanmış istasyon: 3
+Candidate Dataset
 
+Mevcut şarj istasyonu bulunan gridler çıkarıldığında:
 
+Candidate rows: 102.699
 
-Bilimsel Sınırlama
+kalır.
 
-OpenStreetMap, mevcut çalışma alanı ve çevresindeki tampon bölgede yalnızca 18 haritalanmış şarj istasyonu kaydı içermektedir. Bu nedenle söz konusu kaynak, eksiksiz ve resmi bir şarj istasyonu envanteri olarak değerlendirilmemelidir.
+Candidate suitability analizinde ise mevcut altyapı açığı karar probleminin doğrudan bir bileşeni olduğu için charging context kullanılabilir.
 
-Nihai makine öğrenmesi hedefi oluşturulmadan önce şarj istasyonu veri kümesinin, açık lisanslı ek veri kaynaklarıyla zenginleştirilmesi planlanmaktadır.
+Bu iki görev metodolojik olarak birbirinden ayrılmıştır.
 
-charging_station_count ve has_existing_charging_station sütunları hedef veya betimleyici değişkenlerdir. Mevcut istasyon dağılımını yeniden üretmeyi amaçlayan bir modelde doğrudan tahmin girdisi olarak kullanılmamalıdır.
+Explainable Suitability Model
 
-Mesafe ve çevredeki istasyon sayısı sütunları da model geliştirme sırasında veri sızıntısını önleyecek biçimde değerlendirilmelidir.
+VoltSight suitability skoru dört açıklanabilir alt bileşen üzerine kuruludur.
 
-Üretilen Grid Çıktıları
+Accessibility
+Main-road proximity     45%
+Main-road presence      35%
+Road density            20%
+Parking
+Nearest parking proximity   45%
+Parking within 1 km          35%
+Local parking area           20%
+Infrastructure Gap
+Nearest charging distance    75%
+Station scarcity within 2 km 25%
+Technology Gap
+DC absence within 1 km       60%
+AC absence within 1 km       40%
 
-Mevcut veri hattı aşağıdaki temel dosyaları üretmektedir:
+Daha sonra:
 
-data/raw/cankaya_boundary_osm.geojson
-data/processed/cankaya_grid_250m.gpkg
-data/processed/cankaya_grid_250m.geojson
-docs/cankaya_grid_preview.png
-docs/cankaya_grid_summary.md
+Feasibility =
+    60% Accessibility
+    +
+    40% Parking
 
-Yol, otopark ve şarj istasyonu veri hatları da ilgili ara veri dosyalarını, işlenmiş veri kümelerini, görselleri ve teknik özetleri üretmektedir.
+Need =
+    85% Infrastructure Gap
+    +
+    15% Technology Gap
 
-Büyük ham, ara ve işlenmiş veri dosyaları .gitignore kullanılarak Git deposunun dışında tutulur. Bu dosyalar veri hatları yeniden çalıştırılarak üretilebilir.
+hesaplanır.
 
-Kullanılan ve Planlanan Teknolojiler
+Final uygunluk skoru:
 
-Veri Bilimi ve Makine Öğrenmesi
+Suitability = sqrt(Feasibility × Need)
 
-Python
+geometrik ortalamasıyla üretilir.
 
-NumPy
+Geometrik ortalama kullanılması, yalnızca feasibility veya yalnızca need değeri çok yüksek olan dengesiz adayların final skorda aşırı öne çıkmasını sınırlar.
 
-Pandas
+Ankara Suitability Sonuçları
+Candidate count:          102.699
+Median suitability:         45,63
+Maximum suitability:        92,55
+Minimum suitability:         1,88
 
-GeoPandas
+Priority A:                1.027
+Priority B:                4.108
+Priority C:               15.405
+Priority D:               30.810
+Priority E:               51.349
 
-Scikit-learn
+En yüksek aday:
 
-XGBoost
+Grid ID:             ANK_004429
+Suitability score:      92,5548
+Feasibility score:      98,87
+Need score:             86,65
 
-LightGBM
+Priority band'leri Ankara aday dağılımındaki göreli yüzdeliklere göre oluşturulur.
 
-SHAP
+Suitability skoru bir yatırım karar destek sıralamasıdır; finansal getiri, istasyon kullanımı veya ticari başarı olasılığı değildir.
 
-Matplotlib
+Spatially Diverse Shortlist
 
-JupyterLab
+Yüksek puanlı hücrelerin aynı yol koridoru veya aynı kent bölgesinde kümelenmesini önlemek için greedy spatial-diversity algoritması uygulanır.
 
-Coğrafi Veri İşleme
+Eligibility:
 
-OpenStreetMap
+Suitability >= 60
+Feasibility >= 60
+Need >= 50
 
-OSMnx
+Eligibility filtresi sonrası:
 
-Shapely
+10.770 candidate
 
-PyProj
+kalmaktadır.
 
-Pyogrio
+Ankara ölçeği için farklı minimum spacing değerleri değerlendirilmiştir.
 
-GeoJSON
+25 km eşiği:
 
-GeoPackage
+20 aday üretmeye devam eder.
+Minimum shortlist suitability değerini 70'in üzerinde tutar.
+Ankara geneline belirgin coğrafi yayılım sağlar.
 
-Backend ve Veri Saklama
+Final:
 
-FastAPI
+Selected candidates:          20
+Minimum observed spacing:  25,10 km
+Worst original rank:       5.815
+Lowest suitability:        70,4635
+Lowest feasibility:        68,9182
+Lowest need:               56,0840
 
-PostgreSQL
+Spatial diversity yalnızca final shortlist seçiminde uygulanır.
 
-PostGIS
+Adayların orijinal suitability skorları değiştirilmez.
 
-Pydantic
+Sonuç Görselleştirmeleri
 
-Frontend ve Görselleştirme
+Proje aşağıdaki Ankara sonuç görsellerini üretmektedir:
 
-React
+docs/ankara_suitability_map.png
+docs/ankara_final_shortlist_map.png
+docs/ankara_suitability_distribution.png
+docs/ankara_feasibility_need_plot.png
 
-OpenLayers
+ankara_suitability_map.png, Ankara genelindeki göreli uygunluk dağılımını gösterir.
 
-JavaScript
+ankara_final_shortlist_map.png, 25 km minimum mekânsal ayrım sonrasında elde edilen 20 final yatırım bölgesini gösterir.
 
-HTML
+ankara_feasibility_need_plot.png, adayların uygulanabilirlik ve altyapı ihtiyacı arasındaki dengesini görselleştirir.
 
-CSS
+Test ve Veri Doğrulama
 
-Yazılım Mühendisliği ve MLOps
+VoltSight veri hatlarında Pytest tabanlı otomatik kontroller kullanılmaktadır.
 
-Git
+Test edilen konular arasında:
 
-GitHub
+CRS doğruluğu
+grid ID benzersizliği
+geometri geçerliliği
+eksik değer kontrolleri
+yol uzunlukları
+yol yoğunluğu
+en yakın yol mesafesi
+otopark yarıçap sayımları
+otopark alanları
+charging radius count ilişkileri
+AC/DC özellikleri
+veri sızıntısı politikası
+suitability score sınırları
+priority band mantığı
+spatial shortlist mesafe kuralı
+visualization dataset doğrulaması
 
-Docker
+bulunmaktadır.
 
-MLflow
+Proje test paketi 300'den fazla otomatik testi başarıyla geçmektedir.
 
-Pytest
+Testleri çalıştırmak için:
 
+python -m pytest -q
 Proje Yapısı
-
 voltsight-ai/
-|-- backend/
-|   `-- app/
-|       |-- core/
-|       |-- routers/
-|       |-- schemas/
-|       |-- services/
-|       |-- __init__.py
-|       `-- main.py
 |
 |-- data/
 |   |-- raw/
@@ -407,31 +475,52 @@ voltsight-ai/
 |   `-- processed/
 |
 |-- docs/
-|   |-- cankaya_grid_preview.png
-|   |-- cankaya_grid_summary.md
-|   |-- cankaya_parking_features_preview.png
-|   `-- cankaya_charging_features_preview.png
-|
-|-- frontend/
-|
-|-- notebooks/
+|   |-- ankara_suitability_map.png
+|   |-- ankara_final_shortlist_map.png
+|   |-- ankara_suitability_distribution.png
+|   |-- ankara_feasibility_need_plot.png
+|   `-- technical summaries
 |
 |-- src/
 |   `-- voltsight/
-|       |-- data/
-|       |   |-- __init__.py
-|       |   `-- create_study_grid.py
 |       |
-|       |-- evaluation/
+|       |-- core/
+|       |   `-- study_areas.py
+|       |
+|       |-- data/
+|       |   |-- create_study_grid.py
+|       |   |-- merge_charging_station_sources.py
+|       |   `-- merge_ankara_charging_sources.py
+|       |
 |       |-- features/
-|       |-- models/
-|       `-- __init__.py
+|       |   |-- create_road_features.py
+|       |   |-- create_parking_features.py
+|       |   |-- create_charging_features.py
+|       |   |-- create_ankara_road_chunk_plan.py
+|       |   |-- download_ankara_road_chunks.py
+|       |   |-- merge_ankara_road_chunks.py
+|       |   |-- create_ankara_road_features.py
+|       |   |-- download_ankara_parking_chunks.py
+|       |   |-- merge_ankara_parking_chunks.py
+|       |   |-- create_ankara_parking_features.py
+|       |   |-- download_ankara_charging_fast.py
+|       |   |-- create_ankara_charging_features.py
+|       |   `-- create_ankara_model_dataset.py
+|       |
+|       `-- models/
+|           |-- create_suitability_scores.py
+|           |-- create_diverse_candidate_shortlist.py
+|           |-- create_ankara_suitability_scores.py
+|           |-- create_ankara_diverse_candidate_shortlist.py
+|           `-- create_ankara_result_visualizations.py
 |
 |-- tests/
-|-- .gitignore
-|-- README.md
-`-- requirements.txt
-
+|-- notebooks/
+|-- backend/
+|-- frontend/
+|-- pytest.ini
+|-- requirements.txt
+`-- README.md
 Yerel Kurulum
 
 Depoyu klonlayın:
@@ -439,242 +528,191 @@ Depoyu klonlayın:
 git clone https://github.com/ilginbor/voltsight-ai.git
 cd voltsight-ai
 
-Python sanal ortamını oluşturun:
+Sanal ortam oluşturun:
 
 python -m venv .venv
 
-Windows PowerShell üzerinde sanal ortamı etkinleştirin:
+Windows PowerShell üzerinde etkinleştirin:
 
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv\Scripts\Activate.ps1
 
-Paket yöneticisini güncelleyin ve proje bağımlılıklarını kurun:
+Bağımlılıkları kurun:
 
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 
-Çalışma Gridi Veri Hattını Çalıştırma
+Testleri çalıştırın:
 
-Çankaya idari sınırı ve analiz gridi üretim hattını proje ana dizininden çalıştırın:
+python -m pytest -q
+Ankara Pipeline
+1. Study Grid
+python ".\src\voltsight\data\create_study_grid.py" `
+    --study-area ankara `
+    --grid-size-m 500 `
+    --reuse-boundary
+2. Road Pipeline
+python ".\src\voltsight\features\create_ankara_road_chunk_plan.py"
 
-python src/voltsight/data/create_study_grid.py
+python ".\src\voltsight\features\download_ankara_road_chunks.py" `
+    --all `
+    --start-order 1
 
-Veri hattı başarıyla tamamlandığında aşağıdaki çıktıları üretir:
+python ".\src\voltsight\features\merge_ankara_road_chunks.py"
 
-Çankaya idari sınırı
+python ".\src\voltsight\features\create_ankara_road_features.py"
 
-250 × 250 metre analiz gridi
+Road downloader yeniden çalıştırıldığında başarıyla tamamlanan chunk'ları metadata üzerinden atlar ve eksik parçalardan devam eder.
 
-GeoPackage çıktısı
+3. Parking Pipeline
+python ".\src\voltsight\features\download_ankara_parking_chunks.py" `
+    --all `
+    --start-order 1
 
-GeoJSON çıktısı
+python ".\src\voltsight\features\merge_ankara_parking_chunks.py"
 
-Grid önizleme görseli
+python ".\src\voltsight\features\create_ankara_parking_features.py" `
+    --batch-size 5000 `
+    --skip-preview
+4. Charging Pipeline
+python ".\src\voltsight\features\download_ankara_charging_fast.py"
 
-Markdown özet raporu
+python ".\src\voltsight\data\merge_ankara_charging_sources.py"
 
-Testleri Çalıştırma
+python ".\src\voltsight\features\create_ankara_charging_features.py" `
+    --batch-size 5000 `
+    --skip-preview
+5. Model Dataset
+python ".\src\voltsight\features\create_ankara_model_dataset.py"
+6. Suitability Scoring
+python ".\src\voltsight\models\create_ankara_suitability_scores.py"
+7. Spatial Shortlist
+python ".\src\voltsight\models\create_ankara_diverse_candidate_shortlist.py"
+8. Result Visualizations
+python ".\src\voltsight\models\create_ankara_result_visualizations.py"
+Kullanılan Teknolojiler
+Veri Bilimi
+Python
+NumPy
+Pandas
+GeoPandas
+Matplotlib
+Coğrafi Veri İşleme
+OpenStreetMap
+OSMnx
+Shapely
+PyProj
+Pyogrio
+GeoPackage
+GeoJSON
+Yazılım Mühendisliği
+Git
+GitHub
+Pytest
+Chunk-based processing
+Checkpointing
+Metadata-based resume
+Reproducible pipelines
+Planlanan Makine Öğrenmesi ve Uygulama Katmanı
+Scikit-learn
+XGBoost / gradient boosting alternatives
+Spatial cross-validation
+SHAP
+FastAPI
+PostgreSQL / PostGIS
+React
+OpenLayers
+Docker
+MLflow
+Bilimsel ve Veri Kaynağı Sınırlamaları
 
-Proje ana dizininde aşağıdaki komutu çalıştırın:
+VoltSight sonuçları kullanılan açık veri kaynaklarının kapsamına bağlıdır.
 
-python -m pytest
+OpenStreetMap:
 
-Bu komut; grid, yol, otopark ve şarj istasyonu veri hatları için tanımlanan otomatik testleri çalıştırır.
+yol ağı açısından güçlü bir kaynak olmakla birlikte,
+otopark envanterinde eksikler içerebilir,
+charging station kapasite ve connector etiketlerinde eksik değerler içerebilir.
+
+EPDK bileşeni Ankara geneli için eksiksiz koordinatlı istasyon envanteri değildir.
+
+Ayrıca mevcut çalışma:
+
+gerçek istasyon kullanım oranını,
+enerji tüketimini,
+istasyon doluluğunu,
+gelir veya kârlılık verisini,
+elektrik dağıtım şebekesi kapasitesini
+
+doğrudan modellememektedir.
+
+Bu nedenle suitability sonuçları:
+
+garantili talep, finansal kârlılık veya kesin yatırım kararı olarak yorumlanmamalıdır.
+
+VoltSight aşağıdaki kavramları birbirinden ayırmayı amaçlar:
+
+Mekânsal uygunluk
+Altyapı ihtiyacı
+Tahmin edilen talep
+Finansal uygulanabilirlik
+Model güveni
+Sonraki Aşamalar
+
+Mevcut Ankara mekânsal veri ve suitability pipeline'ı tamamlandıktan sonra planlanan çalışmalar:
+
+Exploratory Data Analysis
+Class-imbalance aware baseline models
+Spatial cross-validation
+Model comparison
+SHAP explainability
+Prediction uncertainty
+Additional urban-demand features
+Population / land-use integration
+Electrical-infrastructure features
+FastAPI inference layer
+React + OpenLayers visualization
+Docker packaging
+MLflow experiment tracking
+
+Özellikle mevcut istasyon hedefinde yalnızca 46 pozitif grid bulunması nedeniyle model değerlendirmesinde accuracy tek başına kullanılmayacaktır.
+
+Precision, recall, PR-AUC ve mekânsal doğrulama yöntemleri gibi imbalance-aware metrikler öncelikli olacaktır.
 
 Veri Politikası
 
-VoltSight, kamuya açık ve açık lisanslı veri kümelerini kullanacak şekilde tasarlanmıştır.
+VoltSight kamuya açık ve uygun kullanım koşullarına sahip veri kaynaklarıyla çalışacak şekilde tasarlanmıştır.
 
-Büyük ham, ara ve işlenmiş veri dosyaları doğrudan Git deposunda saklanmaz. Bunun yerine gerekli veri kümelerini elde eden ve yeniden üreten Python veri hatları depoda tutulur.
+Büyük ham, ara ve işlenmiş veri dosyaları doğrudan Git deposunda tutulmaz.
 
-Özel, kısıtlı veya kamuya açık olmayan veri kümeleri izin alınmadan projeye eklenmemelidir.
+Bunun yerine:
 
-Yol Haritası
+download
+clean
+merge
+validate
+feature engineering
+scoring
+visualization
 
-Aşama 1 — Proje Başlatma
-
-GitHub deposunu oluştur
-
-Python sanal ortamını yapılandır
-
-Tam kapsamlı proje klasör yapısını oluştur
-
-Proje dokümantasyonunu ekle
-
-Git ignore kurallarını yapılandır
-
-Aşama 2 — Çalışma Alanını Hazırlama
-
-Çankaya idari sınırını elde et
-
-İdari sınırı izdüşümlü koordinat sistemine dönüştür
-
-250 × 250 metre analiz gridlerini oluştur
-
-Grid önizlemesini ve teknik özeti üret
-
-Grid geometrilerini doğrula
-
-Grid veri hattı için otomatik testler ekle
-
-Aşama 3 — Mekânsal Veri Toplama
-
-Yol ağını topla
-
-Grid bazında yol özelliklerini hesapla
-
-Yol özelliklerini otomatik testlerle doğrula
-
-Otopark alanlarını topla
-
-Grid bazında otopark özelliklerini hesapla
-
-Otopark özelliklerini otomatik testlerle doğrula
-
-OpenStreetMap şarj istasyonlarını topla
-
-Grid bazında şarj istasyonu özelliklerini hesapla
-
-Şarj istasyonu çıktılarını otomatik testlerle doğrula
-
-Ek bir açık şarj istasyonu veri kaynağı bul
-
-Şarj istasyonu envanterlerini birleştir ve mükerrer kayıtları temizle
-
-Alışveriş merkezlerini ve ticari noktaları topla
-
-Hastane ve üniversiteleri topla
-
-Akaryakıt istasyonlarını topla
-
-Toplu taşıma özelliklerini topla
-
-Konut ve ticari arazi kullanım verilerini topla
-
-Aşama 4 — Özellik Mühendisliği
-
-Ana yola uzaklığı hesapla
-
-Yol yoğunluğunu hesapla
-
-Otopark erişilebilirliğini hesapla
-
-Mevcut şarj istasyonu yoğunluğunu hesapla
-
-Şarj istasyonlarına uzaklık özelliklerini hesapla
-
-Yakındaki ilgi noktası sayılarını hesapla
-
-Ek mesafe tabanlı kentsel özellikleri hesapla
-
-Nihai makine öğrenmesi veri kümesini oluştur
-
-Eksik değerleri ve mekânsal tutarlılığı doğrula
-
-Aşama 5 — Makine Öğrenmesi
-
-Keşifsel veri analizi gerçekleştir
-
-Hedef etiketleri ve kontrol örneklerini tanımla
-
-Lojistik Regresyon temel modelini eğit
-
-Rastgele Orman temel modelini eğit
-
-XGBoost modelini eğit
-
-Modellerin performansını karşılaştır
-
-Mekânsal çapraz doğrulama uygula
-
-Model hiperparametrelerini optimize et
-
-Aşama 6 — Açıklanabilir Yapay Zekâ
-
-SHAP genel açıklamalarını ekle
-
-Grid bazında yerel açıklamalar üret
-
-Tahmin güven değerlerini hesapla
-
-Belirsizlik göstergeleri ekle
-
-Model sınırlamalarını ve olası önyargıları analiz et
-
-Aşama 7 — Backend
-
-FastAPI uygulamasını başlat
-
-Sağlık kontrolü endpointlerini ekle
-
-Grid ve uygunluk endpointlerini ekle
-
-Eğitilmiş modeli entegre et
-
-PostgreSQL ve PostGIS bağlantısını kur
-
-İstek doğrulama mekanizmasını ekle
-
-Backend testlerini yaz
-
-Aşama 8 — Frontend
-
-React uygulamasını başlat
-
-OpenLayers entegrasyonunu gerçekleştir
-
-Çankaya gridini haritada göster
-
-Grid hücrelerini uygunluk skoruna göre renklendir
-
-Tahmin açıklamalarını göster
-
-Filtre ve katman kontrollerini ekle
-
-Aday konum ayrıntılarını göster
-
-Duyarlı arayüz tasarımı ekle
-
-Aşama 9 — Dağıtım ve Dokümantasyon
-
-Docker yapılandırmasını ekle
-
-MLflow deney takibini ekle
-
-Otomatik test iş akışını ekle
-
-Mimari diyagramları hazırla
-
-Nihai teknik raporu hazırla
-
-Demo videosu kaydet
-
-Uygulamayı yayımla
-
-Önemli Bilimsel Sınırlama
-
-VoltSight'ın ilk sürümü, mekânsal örüntülere ve mevcut kentsel özelliklere dayalı konum uygunluğu tahmin edecektir.
-
-Gerçek istasyon kullanım oranı, enerji tüketimi, doluluk veya gelir verileri elde edilmediği sürece model sonuçları; garantili talep, kârlılık veya ticari başarı olarak yorumlanmamalıdır.
-
-VoltSight aşağıdaki kavramları açık biçimde birbirinden ayıracaktır:
-
-Mekânsal uygunluk
-
-Tahmin edilen talep
-
-Finansal uygulanabilirlik
-
-Model güveni
-
-Bu ayrım, bilimsel açıdan sorumlu ve şeffaf bir makine öğrenmesi yaklaşımı için gereklidir.
+adımlarını tekrar üretilebilir hale getiren Python pipeline'ları sürüm kontrolünde tutulur.
 
 Lisans
 
-Projede kullanılan tüm dış veri kümelerinin lisansları ve atıf koşulları incelendikten sonra uygun bir proje lisansı seçilecektir.
+Projede kullanılan dış veri kaynaklarının lisans ve atıf koşulları dikkate alınmaktadır.
+
+Proje için nihai yazılım lisansı, dış veri kaynakları ve dağıtım modeli kesinleştirildikten sonra belirlenecektir.
 
 Geliştirici
 
 Ilgın Bor
 
-Bilgisayar Mühendisliği öğrencisiYapay zekâ, veri bilimi, siber güvenlik ve coğrafi bilgi sistemleri alanlarıyla ilgileniyorum.
+Bilgisayar Mühendisliği öğrencisi.
+
+İlgi alanları:
+
+Artificial Intelligence
+Data Science
+Machine Learning
+Cybersecurity
+Geospatial Data Science
