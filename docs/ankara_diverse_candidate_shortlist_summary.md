@@ -5,7 +5,7 @@
 - Total scored candidates: 102,699
 - Eligible candidates: 10,770
 - Desired shortlist size: 20
-- Minimum spatial separation: 5,000 m
+- Minimum spatial separation: 25,000 m
 - Minimum suitability score: 60
 - Minimum feasibility score: 60
 - Minimum need score: 50
@@ -13,35 +13,35 @@
 ## Final Shortlist
 
 - Selected candidates: 20
-- Minimum observed spacing: 5,000.00 m
+- Minimum observed spacing: 25,104.78 m
 - Best original suitability rank selected: 1
-- Worst original suitability rank selected: 205
-- Lowest selected suitability: 82.9348
-- Lowest selected feasibility: 78.2816
-- Lowest selected need: 70.8192
+- Worst original suitability rank selected: 5,815
+- Lowest selected suitability: 70.4635
+- Lowest selected feasibility: 68.9182
+- Lowest selected need: 56.0840
 
 ## Selected Candidates
 
 - #1: `ANK_004429` — suitability 92.55, feasibility 98.87, need 86.65
-- #2: `ANK_006983` — suitability 89.00, feasibility 93.81, need 84.44
-- #3: `ANK_012588` — suitability 87.81, feasibility 94.01, need 82.01
-- #4: `ANK_003788` — suitability 85.74, feasibility 84.51, need 86.99
-- #5: `ANK_003799` — suitability 85.04, feasibility 82.79, need 87.35
-- #6: `ANK_045529` — suitability 84.96, feasibility 91.95, need 78.50
-- #7: `ANK_004445` — suitability 84.88, feasibility 82.60, need 87.22
-- #8: `ANK_004286` — suitability 84.48, feasibility 82.70, need 86.31
-- #9: `ANK_005033` — suitability 84.48, feasibility 82.83, need 86.16
-- #10: `ANK_006359` — suitability 84.22, feasibility 83.55, need 84.90
-- #11: `ANK_049259` — suitability 84.20, feasibility 92.24, need 76.85
-- #12: `ANK_007663` — suitability 83.99, feasibility 84.07, need 83.90
-- #13: `ANK_010892` — suitability 83.57, feasibility 83.80, need 83.34
-- #14: `ANK_012017` — suitability 83.49, feasibility 83.92, need 83.05
-- #15: `ANK_055975` — suitability 83.43, feasibility 98.29, need 70.82
-- #16: `ANK_003592` — suitability 83.36, feasibility 80.13, need 86.72
-- #17: `ANK_002980` — suitability 83.29, feasibility 79.47, need 87.29
-- #18: `ANK_007613` — suitability 83.08, feasibility 81.54, need 84.66
-- #19: `ANK_002997` — suitability 82.97, feasibility 78.28, need 87.94
-- #20: `ANK_006429` — suitability 82.93, feasibility 80.53, need 85.42
+- #2: `ANK_012588` — suitability 87.81, feasibility 94.01, need 82.01
+- #3: `ANK_045529` — suitability 84.96, feasibility 91.95, need 78.50
+- #4: `ANK_101065` — suitability 82.92, feasibility 97.40, need 70.59
+- #5: `ANK_001267` — suitability 80.43, feasibility 72.88, need 88.76
+- #6: `ANK_030609` — suitability 79.87, feasibility 97.81, need 65.23
+- #7: `ANK_008258` — suitability 77.30, feasibility 74.98, need 79.70
+- #8: `ANK_019391` — suitability 77.14, feasibility 71.80, need 82.89
+- #9: `ANK_058928` — suitability 76.55, feasibility 73.11, need 80.16
+- #10: `ANK_057142` — suitability 76.55, feasibility 71.58, need 81.86
+- #11: `ANK_044917` — suitability 76.39, feasibility 98.64, need 59.16
+- #12: `ANK_044069` — suitability 75.03, feasibility 68.92, need 81.68
+- #13: `ANK_093363` — suitability 74.79, feasibility 94.01, need 59.51
+- #14: `ANK_058117` — suitability 74.01, feasibility 97.68, need 56.08
+- #15: `ANK_070064` — suitability 73.94, feasibility 70.90, need 77.10
+- #16: `ANK_100200` — suitability 73.50, feasibility 70.30, need 76.84
+- #17: `ANK_102675` — suitability 73.11, feasibility 84.88, need 62.97
+- #18: `ANK_087378` — suitability 72.17, feasibility 69.93, need 74.47
+- #19: `ANK_019754` — suitability 72.07, feasibility 68.97, need 75.31
+- #20: `ANK_070026` — suitability 70.46, feasibility 80.71, need 61.52
 
 ## Method
 
@@ -51,7 +51,7 @@ quality filters used by the Çankaya pilot.
 The remaining Ankara candidates are ordered by their original
 suitability rank. A greedy spatial-diversity rule then selects the
 highest-ranked candidate whose representative point is at least
-5 kilometres from every already-selected candidate.
+25 kilometres from every already-selected candidate.
 
 The Ankara spacing threshold is intentionally larger than the
 1-kilometre Çankaya pilot threshold because the province-wide study
@@ -67,4 +67,4 @@ not change any candidate's underlying suitability score.
 
 ## Generated At
 
-2026-08-10T06:34:23.411694+00:00
+2026-08-10T07:39:17.810973+00:00

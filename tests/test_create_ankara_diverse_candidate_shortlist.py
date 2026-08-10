@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import geopandas as gpd
 import pandas as pd
@@ -24,8 +24,8 @@ def create_scores() -> gpd.GeoDataFrame:
     coordinates = [
         (0, 0),
         (1_000, 0),
-        (6_000, 0),
-        (12_000, 0),
+        (26_000, 0),
+        (52_000, 0),
     ]
 
     for index, (
@@ -65,14 +65,14 @@ def create_scores() -> gpd.GeoDataFrame:
     )
 
 
-def test_ankara_spacing_is_five_kilometres() -> None:
+def test_ankara_spacing_is_twenty_five_kilometres() -> None:
     """Province-wide shortlist must use wider spacing."""
 
-    assert MINIMUM_SPACING_METERS == 5_000.0
+    assert MINIMUM_SPACING_METERS == 25_000.0
 
 
 def test_eligibility_thresholds_match_cankaya_quality_rules() -> None:
-    """Ankara must preserve the Çankaya quality thresholds."""
+    """Ankara must preserve the Ã‡ankaya quality thresholds."""
 
     assert MINIMUM_SUITABILITY_SCORE == 60.0
     assert MINIMUM_FEASIBILITY_SCORE == 60.0
@@ -145,7 +145,7 @@ def test_spacing_diagnostics_report_nearest_candidate() -> None:
         result[
             "nearest_selected_candidate_m"
         ].min()
-        >= 5_000.0
+        >= 25_000.0
     )
 
     assert result[

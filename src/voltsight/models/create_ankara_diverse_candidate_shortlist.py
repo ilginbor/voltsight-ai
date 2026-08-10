@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
@@ -49,7 +49,7 @@ PROJECTED_CRS = "EPSG:32636"
 
 DESIRED_CANDIDATE_COUNT = 20
 
-MINIMUM_SPACING_METERS = 5_000.0
+MINIMUM_SPACING_METERS = 25_000.0
 
 MINIMUM_SUITABILITY_SCORE = 60.0
 MINIMUM_FEASIBILITY_SCORE = 60.0
@@ -657,7 +657,7 @@ quality filters used by the Çankaya pilot.
 The remaining Ankara candidates are ordered by their original
 suitability rank. A greedy spatial-diversity rule then selects the
 highest-ranked candidate whose representative point is at least
-5 kilometres from every already-selected candidate.
+25 kilometres from every already-selected candidate.
 
 The Ankara spacing threshold is intentionally larger than the
 1-kilometre Çankaya pilot threshold because the province-wide study
