@@ -3,7 +3,7 @@
 ## Selection Configuration
 
 - Total scored candidates: 102,699
-- Eligible candidates: 10,770
+- Eligible candidates: 4,954
 - Desired shortlist size: 20
 - Minimum spatial separation: 25,000 m
 - Minimum suitability score: 60
@@ -13,35 +13,35 @@
 ## Final Shortlist
 
 - Selected candidates: 20
-- Minimum observed spacing: 25,104.78 m
+- Minimum observed spacing: 25,079.87 m
 - Best original suitability rank selected: 1
-- Worst original suitability rank selected: 5,815
-- Lowest selected suitability: 70.4635
-- Lowest selected feasibility: 68.9182
-- Lowest selected need: 56.0840
+- Worst original suitability rank selected: 8,728
+- Lowest selected suitability: 63.1078
+- Lowest selected feasibility: 60.2973
+- Lowest selected need: 54.3497
 
 ## Selected Candidates
 
-- #1: `ANK_004429` — suitability 92.55, feasibility 98.87, need 86.65
-- #2: `ANK_012588` — suitability 87.81, feasibility 94.01, need 82.01
-- #3: `ANK_045529` — suitability 84.96, feasibility 91.95, need 78.50
-- #4: `ANK_101065` — suitability 82.92, feasibility 97.40, need 70.59
-- #5: `ANK_001267` — suitability 80.43, feasibility 72.88, need 88.76
-- #6: `ANK_030609` — suitability 79.87, feasibility 97.81, need 65.23
-- #7: `ANK_008258` — suitability 77.30, feasibility 74.98, need 79.70
-- #8: `ANK_019391` — suitability 77.14, feasibility 71.80, need 82.89
-- #9: `ANK_058928` — suitability 76.55, feasibility 73.11, need 80.16
-- #10: `ANK_057142` — suitability 76.55, feasibility 71.58, need 81.86
-- #11: `ANK_044917` — suitability 76.39, feasibility 98.64, need 59.16
-- #12: `ANK_044069` — suitability 75.03, feasibility 68.92, need 81.68
-- #13: `ANK_093363` — suitability 74.79, feasibility 94.01, need 59.51
-- #14: `ANK_058117` — suitability 74.01, feasibility 97.68, need 56.08
-- #15: `ANK_070064` — suitability 73.94, feasibility 70.90, need 77.10
-- #16: `ANK_100200` — suitability 73.50, feasibility 70.30, need 76.84
-- #17: `ANK_102675` — suitability 73.11, feasibility 84.88, need 62.97
-- #18: `ANK_087378` — suitability 72.17, feasibility 69.93, need 74.47
-- #19: `ANK_019754` — suitability 72.07, feasibility 68.97, need 75.31
-- #20: `ANK_070026` — suitability 70.46, feasibility 80.71, need 61.52
+- #1: `ANK_004300` — suitability 89.75, feasibility 82.80, need 97.28
+- #2: `ANK_055975` — suitability 84.85, feasibility 88.56, need 81.30
+- #3: `ANK_007151` — suitability 84.20, feasibility 74.74, need 94.86
+- #4: `ANK_013005` — suitability 83.33, feasibility 75.72, need 91.71
+- #5: `ANK_101065` — suitability 81.50, feasibility 81.92, need 81.08
+- #6: `ANK_030609` — suitability 78.67, feasibility 81.74, need 75.71
+- #7: `ANK_037238` — suitability 78.03, feasibility 68.03, need 89.50
+- #8: `ANK_044917` — suitability 76.70, feasibility 84.47, need 69.64
+- #9: `ANK_093363` — suitability 73.71, feasibility 77.61, need 69.99
+- #10: `ANK_066425` — suitability 73.54, feasibility 60.73, need 89.05
+- #11: `ANK_102631` — suitability 73.38, feasibility 75.00, need 71.79
+- #12: `ANK_057005` — suitability 72.20, feasibility 91.40, need 57.03
+- #13: `ANK_061180` — suitability 71.04, feasibility 92.86, need 54.35
+- #14: `ANK_010010` — suitability 70.32, feasibility 61.36, need 80.60
+- #15: `ANK_073387` — suitability 68.40, feasibility 71.91, need 65.06
+- #16: `ANK_075344` — suitability 67.68, feasibility 61.59, need 74.38
+- #17: `ANK_093670` — suitability 67.43, feasibility 60.30, need 75.41
+- #18: `ANK_080777` — suitability 66.65, feasibility 66.92, need 66.37
+- #19: `ANK_028141` — suitability 66.31, feasibility 66.42, need 66.20
+- #20: `ANK_010930` — suitability 63.11, feasibility 67.52, need 58.98
 
 ## Method
 
@@ -67,4 +67,4 @@ not change any candidate's underlying suitability score.
 
 ## Generated At
 
-2026-08-10T07:39:17.810973+00:00
+2026-08-11T07:53:43.073231+00:00

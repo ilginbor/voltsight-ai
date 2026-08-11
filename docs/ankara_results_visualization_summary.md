@@ -3,11 +3,11 @@
 ## Suitability Dataset
 
 - Candidate cells: 102,699
-- Median suitability: 45.63
-- Maximum suitability: 92.55
-- Minimum suitability: 1.88
-- Top candidate: `ANK_004429`
-- Top candidate score: 92.5548
+- Median suitability: 38.12
+- Maximum suitability: 89.75
+- Minimum suitability: 5.04
+- Top candidate: `ANK_004300`
+- Top candidate score: 89.7487
 
 ## Priority Distribution
 
@@ -20,11 +20,11 @@
 ## Final Spatially Diverse Shortlist
 
 - Final candidates: 20
-- Minimum observed spacing: 25,104.78 m
-- Lowest shortlist suitability: 70.46
-- Lowest shortlist feasibility: 68.92
-- Lowest shortlist need: 56.08
-- Worst original rank selected: 5,815
+- Minimum observed spacing: 25,079.87 m
+- Lowest shortlist suitability: 63.11
+- Lowest shortlist feasibility: 60.30
+- Lowest shortlist need: 54.35
+- Worst original rank selected: 8,728
 
 ## Generated Figures
 
@@ -49,4 +49,4 @@ with a meaningful charging-infrastructure gap.
 
 ## Generated At
 
-2026-08-10T07:45:34.519812+00:00
+2026-08-11T07:54:44.872442+00:00

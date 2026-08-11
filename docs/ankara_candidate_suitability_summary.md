@@ -3,11 +3,11 @@
 ## Candidates
 
 - Candidate grid cells: 102,699
-- Median suitability score: 45.63
-- Maximum suitability score: 92.55
-- Minimum suitability score: 1.88
-- Top candidate: `ANK_004429`
-- Top candidate score: 92.5548
+- Median suitability score: 38.12
+- Maximum suitability score: 89.75
+- Minimum suitability score: 5.04
+- Top candidate: `ANK_004300`
+- Top candidate score: 89.7487
 
 ## Priority Bands
 
@@ -54,6 +54,9 @@ probability that a charging station should be constructed.
 
 Percentile transformations are calculated over Ankara candidate cells,
 so scores are relative to the province-wide candidate distribution.
+Positive-only road-density and parking transformations keep true zero
+values at zero instead of assigning artificial percentile credit.
+Charging-station count scarcity uses a deterministic decreasing curve.
 
 ## Outputs
 
@@ -62,4 +65,4 @@ so scores are relative to the province-wide candidate distribution.
 
 ## Generated At
 
-2026-08-10T06:30:32.583418+00:00
+2026-08-11T07:51:59.425334+00:00

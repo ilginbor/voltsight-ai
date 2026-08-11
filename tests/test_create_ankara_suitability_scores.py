@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import numpy as np
 import pandas as pd
@@ -6,13 +6,18 @@ import pandas as pd
 from voltsight.models.create_ankara_suitability_scores import (
     ACCESSIBILITY_WEIGHTS,
     FEASIBILITY_WEIGHTS,
+    INFRASTRUCTURE_GAP_WEIGHTS,
     NEED_WEIGHTS,
     PARKING_WEIGHTS,
+    TECHNOLOGY_GAP_WEIGHTS,
     absence_score,
     assign_priority_band,
     create_suitability_scores,
+    higher_is_better_percentile_score,
     low_count_gap_score,
+    lower_is_better_percentile_score,
     percentile_score,
+    positive_percentile_score,
     weighted_score,
 )
 
@@ -35,7 +40,7 @@ def create_candidates() -> pd.DataFrame:
             "road_density_km_per_km2": [
                 8.0,
                 4.0,
-                1.0,
+                0.0,
             ],
             "distance_to_main_road_m": [
                 100.0,
@@ -87,6 +92,8 @@ def test_weight_groups_sum_to_one() -> None:
     for weights in (
         ACCESSIBILITY_WEIGHTS,
         PARKING_WEIGHTS,
+        INFRASTRUCTURE_GAP_WEIGHTS,
+        TECHNOLOGY_GAP_WEIGHTS,
         FEASIBILITY_WEIGHTS,
         NEED_WEIGHTS,
     ):
@@ -117,6 +124,66 @@ def test_lower_distance_scores_better() -> None:
     )
 
 
+def test_positive_percentile_keeps_zero_values_at_zero() -> None:
+    """Zero-valued sparse features must not receive percentile credit."""
+
+    scores = positive_percentile_score(
+        pd.Series(
+            [
+                0.0,
+                0.0,
+                1.0,
+                2.0,
+            ]
+        )
+    )
+
+    assert scores.tolist() == [
+        0.0,
+        0.0,
+        50.0,
+        100.0,
+    ]
+
+
+def test_directional_percentile_helpers_match_expected_order() -> None:
+    """Directional helpers must preserve the Çankaya percentile convention."""
+
+    values = pd.Series(
+        [
+            100.0,
+            1_000.0,
+            10_000.0,
+        ]
+    )
+
+    lower_scores = lower_is_better_percentile_score(
+        values
+    )
+
+    higher_scores = higher_is_better_percentile_score(
+        values
+    )
+
+    assert np.allclose(
+        lower_scores.to_numpy(),
+        [
+            100.0,
+            66.6666666667,
+            33.3333333333,
+        ],
+    )
+
+    assert np.allclose(
+        higher_scores.to_numpy(),
+        [
+            33.3333333333,
+            66.6666666667,
+            100.0,
+        ],
+    )
+
+
 def test_low_station_count_creates_larger_gap() -> None:
     """Infrastructure scarcity must increase gap score."""
 
@@ -130,7 +197,14 @@ def test_low_station_count_creates_larger_gap() -> None:
         )
     )
 
-    assert scores.iloc[0] > scores.iloc[2]
+    assert np.allclose(
+        scores.to_numpy(),
+        [
+            100.0,
+            50.0,
+            20.0,
+        ],
+    )
 
 
 def test_absence_score_is_binary() -> None:
@@ -200,6 +274,32 @@ def test_priority_band_thresholds() -> None:
         "D",
         "E",
     ]
+
+
+def test_sparse_zero_features_receive_zero_component_scores() -> None:
+    """Sparse road and parking zeros must remain zero after scoring."""
+
+    scores = create_suitability_scores(
+        create_candidates()
+    )
+
+    zero_candidate = scores.loc[
+        scores[
+            "grid_id"
+        ] == "ANK_000003"
+    ].iloc[0]
+
+    assert zero_candidate[
+        "road_density_score"
+    ] == 0.0
+
+    assert zero_candidate[
+        "parking_coverage_score"
+    ] == 0.0
+
+    assert zero_candidate[
+        "parking_area_score"
+    ] == 0.0
 
 
 def test_complete_scoring_is_bounded_and_ranked() -> None:

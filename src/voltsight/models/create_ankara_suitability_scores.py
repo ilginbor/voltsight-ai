@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
@@ -229,33 +229,103 @@ def load_candidate_dataset() -> pd.DataFrame:
     return candidates
 
 
-def percentile_score(
+def positive_percentile_score(
     values: pd.Series,
-    *,
-    higher_is_better: bool,
 ) -> pd.Series:
-    """Convert a numeric variable to a 0-100 percentile score."""
+    """Score positive values by percentile while keeping zeros at zero."""
 
     numeric = pd.to_numeric(
         values,
         errors="raise",
     ).astype(float)
 
-    percentile = numeric.rank(
-        method="average",
-        pct=True,
+    result = pd.Series(
+        0.0,
+        index=values.index,
+        dtype=float,
     )
 
-    if higher_is_better:
-        score = percentile * 100.0
-    else:
-        score = (
-            1.0 - percentile
-        ) * 100.0
+    positive_mask = numeric.gt(0)
 
-    return score.clip(
+    if positive_mask.any():
+        result.loc[positive_mask] = (
+            numeric.loc[positive_mask]
+            .rank(
+                method="average",
+                pct=True,
+                ascending=True,
+            )
+            .mul(100.0)
+        )
+
+    return result.clip(
         0.0,
         100.0,
+    )
+
+
+def lower_is_better_percentile_score(
+    values: pd.Series,
+) -> pd.Series:
+    """Give higher percentile scores to smaller distance values."""
+
+    numeric = pd.to_numeric(
+        values,
+        errors="raise",
+    ).astype(float)
+
+    return (
+        numeric.rank(
+            method="average",
+            pct=True,
+            ascending=False,
+        )
+        .mul(100.0)
+        .clip(
+            0.0,
+            100.0,
+        )
+    )
+
+
+def higher_is_better_percentile_score(
+    values: pd.Series,
+) -> pd.Series:
+    """Give higher percentile scores to larger values."""
+
+    numeric = pd.to_numeric(
+        values,
+        errors="raise",
+    ).astype(float)
+
+    return (
+        numeric.rank(
+            method="average",
+            pct=True,
+            ascending=True,
+        )
+        .mul(100.0)
+        .clip(
+            0.0,
+            100.0,
+        )
+    )
+
+
+def percentile_score(
+    values: pd.Series,
+    *,
+    higher_is_better: bool,
+) -> pd.Series:
+    """Backward-compatible percentile wrapper for ordered numeric values."""
+
+    if higher_is_better:
+        return higher_is_better_percentile_score(
+            values
+        )
+
+    return lower_is_better_percentile_score(
+        values
     )
 
 
@@ -264,20 +334,31 @@ def distance_gap_score(
 ) -> pd.Series:
     """Score larger distances as larger infrastructure gaps."""
 
-    return percentile_score(
-        values,
-        higher_is_better=True,
+    return higher_is_better_percentile_score(
+        values
     )
 
 
 def low_count_gap_score(
     values: pd.Series,
 ) -> pd.Series:
-    """Score lower nearby station counts as larger gaps."""
+    """Score infrastructure scarcity using a decreasing count curve."""
 
-    return percentile_score(
+    numeric = pd.to_numeric(
         values,
-        higher_is_better=False,
+        errors="raise",
+    ).astype(float)
+
+    numeric = numeric.clip(
+        lower=0.0
+    )
+
+    return (
+        100.0
+        / (1.0 + numeric)
+    ).clip(
+        0.0,
+        100.0,
     )
 
 
@@ -292,7 +373,7 @@ def absence_score(
     )
 
     return (
-        numeric.eq(0)
+        numeric.le(0)
         .astype(float)
         * 100.0
     )
@@ -417,9 +498,8 @@ def create_suitability_scores(
 
     result[
         "road_proximity_score"
-    ] = percentile_score(
-        result["distance_to_main_road_m"],
-        higher_is_better=False,
+    ] = lower_is_better_percentile_score(
+        result["distance_to_main_road_m"]
     )
 
     result[
@@ -433,34 +513,30 @@ def create_suitability_scores(
 
     result[
         "road_density_score"
-    ] = percentile_score(
-        result["road_density_km_per_km2"],
-        higher_is_better=True,
+    ] = positive_percentile_score(
+        result["road_density_km_per_km2"]
     )
 
     result[
         "parking_proximity_score"
-    ] = percentile_score(
+    ] = lower_is_better_percentile_score(
         result[
             "distance_to_nearest_parking_m"
-        ],
-        higher_is_better=False,
+        ]
     )
 
     result[
         "parking_coverage_score"
-    ] = percentile_score(
+    ] = positive_percentile_score(
         result[
             "parking_count_within_1000m"
-        ],
-        higher_is_better=True,
+        ]
     )
 
     result[
         "parking_area_score"
-    ] = percentile_score(
-        result["parking_area_m2"],
-        higher_is_better=True,
+    ] = positive_percentile_score(
+        result["parking_area_m2"]
     )
 
     result[
@@ -862,6 +938,9 @@ probability that a charging station should be constructed.
 
 Percentile transformations are calculated over Ankara candidate cells,
 so scores are relative to the province-wide candidate distribution.
+Positive-only road-density and parking transformations keep true zero
+values at zero instead of assigning artificial percentile credit.
+Charging-station count scarcity uses a deterministic decreasing curve.
 
 ## Outputs
 

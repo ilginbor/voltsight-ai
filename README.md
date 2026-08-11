@@ -24,13 +24,13 @@ Proje başlangıçta **Çankaya, Ankara** üzerinde 250 × 250 metre çözünür
 | Nihai analiz şarj istasyonu | 69 |
 | Mevcut istasyon içeren grid | 46 |
 | Yeni istasyon adayı grid | 102.699 |
-| Eligibility filtresini geçen aday | 10.770 |
+| Eligibility filtresini geçen aday | 4.954 |
 | Nihai shortlist | 20 |
 | Minimum shortlist aralığı | 25 km |
-| En yüksek suitability skoru | 92,5548 |
-| En yüksek aday | `ANK_004429` |
-| Shortlist minimum suitability | 70,4635 |
-| Otomatik test | 353 |
+| En yüksek suitability skoru | 89,7487 |
+| En yüksek aday | `ANK_004300` |
+| Shortlist minimum suitability | 63,1078 |
+| Otomatik test | 356 |
 
 ---
 
@@ -63,10 +63,10 @@ koşullarını kullanır.
 25 km minimum aralık altında:
 
 - 20 aday seçilmiştir.
-- Gözlenen minimum mesafe 25,10 km'dir.
-- Seçilen en düşük suitability skoru 70,4635'tir.
-- Seçilen en düşük feasibility skoru 68,9182'dir.
-- Seçilen en düşük need skoru 56,0840'tır.
+- Gözlenen minimum mesafe 25,08 km'dir.
+- Seçilen en düşük suitability skoru 63,1078'tir.
+- Seçilen en düşük feasibility skoru 60,2973'dir.
+- Seçilen en düşük need skoru 54,3497'tır.
 - Shortlist'e giren en düşük orijinal suitability sırası 5.815'tir.
 
 Bu yaklaşım, yalnızca yüksek skor üretmek yerine Ankara geneline yayılmış farklı yatırım bölgeleri önermeyi amaçlar.
@@ -362,8 +362,8 @@ Geometrik ortalama kullanılması, yalnızca feasibility veya yalnızca need de�
 
 Ankara Suitability Sonuçları
 Candidate count:          102.699
-Median suitability:         45,63
-Maximum suitability:        92,55
+Median suitability:         38,12
+Maximum suitability:        89,75
 Minimum suitability:         1,88
 
 Priority A:                1.027
@@ -374,8 +374,8 @@ Priority E:               51.349
 
 En yüksek aday:
 
-Grid ID:             ANK_004429
-Suitability score:      92,5548
+Grid ID:             ANK_004300
+Suitability score:      89,7487
 Feasibility score:      98,87
 Need score:             86,65
 
@@ -395,7 +395,7 @@ Need >= 50
 
 Eligibility filtresi sonrası:
 
-10.770 candidate
+4.954 candidate
 
 kalmaktadır.
 
@@ -410,11 +410,11 @@ Ankara geneline belirgin coğrafi yayılım sağlar.
 Final:
 
 Selected candidates:          20
-Minimum observed spacing:  25,10 km
+Minimum observed spacing:  25,08 km
 Worst original rank:       5.815
-Lowest suitability:        70,4635
-Lowest feasibility:        68,9182
-Lowest need:               56,0840
+Lowest suitability:        63,1078
+Lowest feasibility:        60,2973
+Lowest need:               54,3497
 
 Spatial diversity yalnızca final shortlist seçiminde uygulanır.
 
@@ -460,7 +460,7 @@ visualization dataset doğrulaması
 
 bulunmaktadır.
 
-Proje test paketi 353 otomatik testi başarıyla geçmektedir.
+Proje test paketi 356 otomatik testi başarıyla geçmektedir.
 
 Testleri çalıştırmak için:
 
