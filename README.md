@@ -1,4 +1,3 @@
-﻿@'
 # VoltSight
 
 **Akıllı elektrikli araç şarj istasyonu yer seçimi için açıklanabilir mekânsal karar destek sistemi.**
@@ -31,7 +30,7 @@ Proje başlangıçta **Çankaya, Ankara** üzerinde 250 × 250 metre çözünür
 | En yüksek suitability skoru | 92,5548 |
 | En yüksek aday | `ANK_004429` |
 | Shortlist minimum suitability | 70,4635 |
-| Otomatik test | 300+ |
+| Otomatik test | 353 |
 
 ---
 
@@ -461,7 +460,7 @@ visualization dataset doğrulaması
 
 bulunmaktadır.
 
-Proje test paketi 300'den fazla otomatik testi başarıyla geçmektedir.
+Proje test paketi 353 otomatik testi başarıyla geçmektedir.
 
 Testleri çalıştırmak için:
 
@@ -616,7 +615,6 @@ Reproducible pipelines
 Planlanan Makine Öğrenmesi ve Uygulama Katmanı
 Scikit-learn
 XGBoost / gradient boosting alternatives
-Spatial cross-validation
 SHAP
 FastAPI
 PostgreSQL / PostGIS
@@ -659,12 +657,8 @@ Finansal uygulanabilirlik
 Model güveni
 Sonraki Aşamalar
 
-Mevcut Ankara mekânsal veri ve suitability pipeline'ı tamamlandıktan sonra planlanan çalışmalar:
+Ankara mekânsal veri, suitability ve spatial ML baseline pipeline'ları tamamlandıktan sonra planlanan çalışmalar:
 
-Exploratory Data Analysis
-Class-imbalance aware baseline models
-Spatial cross-validation
-Model comparison
 SHAP explainability
 Prediction uncertainty
 Additional urban-demand features
@@ -716,3 +710,4 @@ Data Science
 Machine Learning
 Cybersecurity
 Geospatial Data Science
+---
