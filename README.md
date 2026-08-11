@@ -35,6 +35,9 @@ Proje ilk olarak **Çankaya, Ankara** üzerinde 250 × 250 metre çözünürlük
 | Shortlist minimum suitability | 63,1078 |
 | Canonical ML predictor sayısı | 15 |
 | Canonical RF spatial OOF AP | 0,091954 |
+| Suitability ↔ fold-normalized ML consensus Spearman | 0,6865 |
+| Final 20: ≥2 model candidate top %20 | 20/20 |
+| Final 20: ≥2 model candidate top %10 | 19/20 |
 | Otomatik test kapsamı | 450+ Pytest kontrolü |
 
 ---
@@ -141,6 +144,14 @@ Population Context             OSM Urban Activity
    |      |      |
    v      v      v
  Logistic  RF    HGB
+   \      |      /
+    \     |     /
+     v    v    v
+ Fold-normalized OOF
+   Candidate Support
+          |
+          v
+Final 20 agreement diagnostic
 ```
 
 Suitability ve ML katmanları aynı problem değildir:
@@ -734,6 +745,83 @@ Bu sonuçlar:
 
 ---
 
+
+# Candidate-Level ML Support Diagnostic
+
+Canonical model evaluation tamamlandıktan sonra ML skorları suitability skoruna
+karıştırılmaz. Bunun yerine candidate-level ikinci bir evidence axis oluşturulur.
+
+Önemli metodoloji noktası: OOF skorları beş farklı fold-specific modelden
+geldiği için raw score'lar Ankara genelinde doğrudan rank edilmez.
+
+Her model için:
+
+```text
+held-out spatial fold OOF score
+        ↓
+same-fold candidate percentile
+        ↓
+0-100 fold-normalized rank
+```
+
+hesaplanır.
+
+Daha sonra Logistic Regression, Random Forest ve HistGradientBoosting
+percentile'larının medyanı cross-model ML consensus olarak kullanılır.
+
+Bu değer:
+
+- calibrated probability değildir,
+- suitability'nin parçası değildir,
+- yeni blended canonical score değildir,
+- historical mapped station-placement pattern ile agreement diagnostic'idir.
+
+## Province-Wide Agreement
+
+```text
+Candidates:                              102.699
+Suitability ↔ ML consensus Spearman:      0,6865
+
+Top 1% suitability / ML overlap:          1,17%
+Top 5% suitability / ML overlap:          8,88%
+Top 10% suitability / ML overlap:        30,41%
+```
+
+Bu sonuç iki katmanın ilişkili ancak aynı olmadığını gösterir.
+
+Suitability infrastructure gap ve feasibility'yi açık biçimde ödüllendirirken,
+ML mevcut 46 station hücresinin historical spatial pattern'ını öğrenir.
+
+## Final 20 ML Support
+
+```text
+Median ML consensus percentile:          95,03
+Minimum ML consensus percentile:         83,66
+Maximum ML consensus percentile:         99,14
+Median cross-model spread:                3,00
+
+>= 2 model candidate top 20%:            20/20
+all 3 model candidate top 20%:           15/20
+>= 2 model candidate top 10%:            19/20
+```
+
+Dolayısıyla province-wide top ranking'ler birebir örtüşmese de spatially diverse
+final shortlist iki bağımsız analitik katmandan güçlü destek almaktadır.
+
+Bazı adaylarda model disagreement ayrıca görünür tutulur. Örneğin:
+
+- `ANK_073387`: LR/RF yüksek, HGB belirgin düşük
+- `ANK_066425`: RF/HGB yüksek, Logistic belirgin düşük
+- `ANK_093670`: final 20 içindeki en düşük ML consensus örneklerinden biri
+
+Bu disagreement'lar saklanmaz veya tek bir ortalama skor altında gizlenmez.
+
+Aşağıdaki görsel suitability ile fold-normalized spatial OOF ML support
+arasındaki ilişkiyi gösterir:
+
+![Ankara Suitability vs ML Support](docs/ankara_suitability_ml_support.png)
+
+
 # Suitability ve ML Neden Ayrı?
 
 VoltSight'ta suitability ile ML birbirinin yerine kullanılmaz.
@@ -778,6 +866,8 @@ docs/ankara_activity_feature_correlations.png
 docs/ankara_activity_incremental_value.png
 docs/ankara_activity_category_context.png
 docs/ankara_canonical_ml_model_comparison.png
+docs/ankara_canonical_spatial_permutation_importance.png
+docs/ankara_suitability_ml_support.png
 ```
 
 Özellikle:
@@ -787,6 +877,8 @@ docs/ankara_canonical_ml_model_comparison.png
 - `ankara_feasibility_need_plot.png`: feasibility / need dengesi
 - `ankara_activity_feature_correlations.png`: OSM activity redundancy audit
 - `ankara_canonical_ml_model_comparison.png`: Activity15 model AP karşılaştırması
+- `ankara_canonical_spatial_permutation_importance.png`: canonical feature dependence
+- `ankara_suitability_ml_support.png`: suitability ile fold-normalized ML agreement
 
 ---
 
@@ -817,6 +909,9 @@ Kontrol edilen konular arasında:
 - OSM activity category / neighborhood logic
 - Canonical Activity15 schema
 - canonical model evaluation
+- validation-fold permutation importance
+- fold-normalized OOF candidate-support ranking
+- shortlist ML-support agreement
 
 bulunur.
 
@@ -848,6 +943,8 @@ voltsight-ai/
 |   |-- ankara_feasibility_need_plot.png
 |   |-- ankara_activity_feature_correlations.png
 |   |-- ankara_canonical_ml_model_comparison.png
+|   |-- ankara_canonical_spatial_permutation_importance.png
+|   |-- ankara_suitability_ml_support.png
 |   `-- technical summaries
 |
 |-- src/
@@ -891,7 +988,9 @@ voltsight-ai/
 |           |-- analyze_ankara_activity_incremental_value.py
 |           |-- analyze_ankara_activity_category_context.py
 |           |-- analyze_ankara_rf_activity_seed_stability.py
-|           `-- evaluate_ankara_canonical_ml_models.py
+|           |-- evaluate_ankara_canonical_ml_models.py
+|           |-- analyze_ankara_canonical_spatial_permutation_importance.py
+|           `-- analyze_ankara_candidate_ml_support.py
 |
 |-- tests/
 |-- notebooks/
@@ -1072,7 +1171,39 @@ docs/ankara_canonical_ml_model_summary.md
 docs/ankara_canonical_ml_model_comparison.png
 ```
 
+## 14. Canonical Spatial Permutation Importance
+
+```powershell
+python ".\src\voltsight\models\analyze_ankara_canonical_spatial_permutation_importance.py"
+```
+
+Outputs:
+
+```text
+data/processed/ankara_canonical_spatial_permutation_importance.csv
+data/processed/ankara_canonical_spatial_permutation_importance_fold_drops.csv
+docs/ankara_canonical_spatial_permutation_importance_summary.md
+docs/ankara_canonical_spatial_permutation_importance.png
+```
+
+## 15. Candidate ML Support Diagnostic
+
+```powershell
+python ".\src\voltsight\models\analyze_ankara_candidate_ml_support.py"
+```
+
+Outputs:
+
+```text
+data/processed/ankara_candidate_ml_support.csv
+data/processed/ankara_shortlist_ml_support.csv
+data/processed/ankara_candidate_ml_support_metrics.csv
+docs/ankara_candidate_ml_support_summary.md
+docs/ankara_suitability_ml_support.png
+```
+
 ---
+
 
 # Kullanılan Teknolojiler
 
@@ -1125,6 +1256,8 @@ Başlıca sınırlamalar:
 - WorldPop residential population modelidir; doğrudan EV ownership veya mobility demand değildir.
 - Mevcut station target'ında yalnızca 46 positive grid vardır.
 - 5 km spatial CV local dependence'i azaltır ancak tüm spatial autocorrelation'ı ortadan kaldırmaz.
+- Candidate ML support, internal spatial OOF evidence'dır; independent external validation değildir.
+- OOF raw skorları fold-specific estimator'lar arasında doğrudan karşılaştırılmaz; candidate support fold-normalized percentile kullanır.
 - ML score'ları calibrated probability değildir.
 - Coefficient ve feature-importance değerleri causal effect değildir.
 - Suitability relative percentile tabanlı heuristic decision score'dur.
@@ -1151,6 +1284,7 @@ Bir sonraki güçlü geliştirme alanları:
 - traffic / mobility feature'ları
 - EV ownership proxy'leri
 - electricity-distribution capacity feature'ları
+- candidate-level suitability + ML-support dashboard
 - FastAPI inference / decision-support API
 - React + OpenLayers web visualization
 - Docker packaging
