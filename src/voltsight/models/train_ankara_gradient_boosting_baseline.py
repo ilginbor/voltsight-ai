@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,6 +21,11 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 from sklearn.utils.class_weight import compute_sample_weight
+
+from voltsight.core.ankara_ml_features import (
+    HISTORICAL_FULL_14_FEATURE_COLUMNS,
+    TARGET_COLUMN,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -65,23 +70,8 @@ SUMMARY_PATH = (
     / "ankara_gradient_boosting_baseline_summary.md"
 )
 
-TARGET_COLUMN = "has_existing_charging_station"
-
 FEATURE_COLUMNS = (
-    "road_length_m",
-    "road_segment_count",
-    "main_road_length_m",
-    "main_road_segment_count",
-    "road_density_km_per_km2",
-    "distance_to_main_road_m",
-    "parking_count",
-    "parking_area_m2",
-    "parking_area_ratio",
-    "distance_to_nearest_parking_m",
-    "parking_count_within_500m",
-    "parking_count_within_1000m",
-    "known_parking_capacity",
-    "parking_capacity_record_count",
+    HISTORICAL_FULL_14_FEATURE_COLUMNS
 )
 
 N_SPLITS = 5

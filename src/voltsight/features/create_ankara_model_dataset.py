@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
@@ -6,6 +6,15 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+
+from voltsight.core.ankara_ml_features import (
+    CHARGING_CONTEXT_COLUMNS,
+    CHARGING_LEAKAGE_COLUMNS,
+    HISTORICAL_FULL_14_FEATURE_COLUMNS,
+    PARKING_FEATURE_COLUMNS,
+    ROAD_FEATURE_COLUMNS,
+    TARGET_COLUMN,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -38,10 +47,6 @@ SUMMARY_OUTPUT_PATH = (
 )
 
 
-TARGET_COLUMN = (
-    "has_existing_charging_station"
-)
-
 IDENTIFIER_COLUMNS = (
     "grid_id",
 )
@@ -50,43 +55,8 @@ CONSTANT_METADATA_COLUMNS = (
     "cell_area_m2",
 )
 
-ROAD_FEATURE_COLUMNS = (
-    "road_length_m",
-    "road_segment_count",
-    "main_road_length_m",
-    "main_road_segment_count",
-    "road_density_km_per_km2",
-    "distance_to_main_road_m",
-)
-
-PARKING_FEATURE_COLUMNS = (
-    "parking_count",
-    "parking_area_m2",
-    "parking_area_ratio",
-    "distance_to_nearest_parking_m",
-    "parking_count_within_500m",
-    "parking_count_within_1000m",
-    "known_parking_capacity",
-    "parking_capacity_record_count",
-)
-
-CHARGING_CONTEXT_COLUMNS = (
-    "distance_to_nearest_charging_station_m",
-    "charging_station_count_within_1000m",
-    "charging_station_count_within_2000m",
-    "ac_station_count_within_1000m",
-    "dc_station_count_within_1000m",
-)
-
-CHARGING_LEAKAGE_COLUMNS = (
-    "charging_station_count",
-    "known_charging_capacity",
-    "charging_capacity_record_count",
-)
-
 TRAINING_FEATURE_COLUMNS = (
-    *ROAD_FEATURE_COLUMNS,
-    *PARKING_FEATURE_COLUMNS,
+    HISTORICAL_FULL_14_FEATURE_COLUMNS
 )
 
 TRAINING_OUTPUT_COLUMNS = (
