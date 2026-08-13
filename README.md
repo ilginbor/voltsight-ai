@@ -1554,7 +1554,9 @@ adımlarını yeniden üretilebilir hale getiren pipeline kodu tutulur.
 
 # Lisans ve Veri Kaynakları
 
-Kullanılan dış veri kaynaklarının kendi lisans ve attribution koşulları geçerlidir.
+VoltSight kaynak kodu **MIT License** altında yayımlanır. Ayrıntılar repository root'undaki [`LICENSE`](LICENSE) dosyasındadır.
+
+MIT lisansı yalnızca VoltSight yazılım koduna uygulanır. Projede kullanılan dış veri kaynaklarının kendi lisans, kullanım ve attribution koşulları ayrıca geçerlidir.
 
 Başlıca kaynaklar:
 
@@ -1563,7 +1565,7 @@ Başlıca kaynaklar:
 - TÜİK aggregate population benchmark
 - daha önce incelenmiş tek supplemental EPDK coordinate
 
-Proje için nihai yazılım lisansı, dağıtım modeli ve dış veri attribution gereksinimleri kesinleştirildikten sonra ayrıca tanımlanacaktır.
+Büyük raw / interim / processed veri dosyalarının Git deposunda tutulmaması, dış veri kaynaklarının lisans ve attribution yükümlülüklerini ortadan kaldırmaz.
 
 ---
 
