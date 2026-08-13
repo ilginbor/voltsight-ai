@@ -46,7 +46,7 @@ Proje ilk olarak **Çankaya, Ankara** üzerinde 250 × 250 metre çözünürlük
 
 ![VoltSight Ankara Decision-Support Dashboard](docs/voltsight_dashboard.png)
 
-Araştırma ve modelleme çıktıları, read-only FastAPI servisi ve React + TypeScript + OpenLayers arayüzü üzerinden etkileşimli bir karar-destek ekranına taşınmıştır.
+Araştırma ve modelleme çıktıları, read-only FastAPI servisi ve React + TypeScript + OpenLayers arayüzü üzerinden etkileşimli bir karar-destek ekranına taşınmıştır. Uygulama ayrıca Docker Compose ile FastAPI backend ve Nginx üzerinden servis edilen production frontend olarak birlikte çalıştırılabilir.
 
 Dashboard:
 
@@ -960,10 +960,13 @@ Frontend tarafında:
 Latest validated test snapshot:
 
 ```text
-Python / Pytest:    489 passed, 3 warnings
-Frontend / Vitest:  10 passed
-Frontend build:     Vite production build passed
+Python / Pytest:      489 passed, 3 warnings
+Frontend / Vitest:    10 passed
+Frontend build:       Vite production build passed
+Docker Compose smoke: passed
 ```
+
+Docker smoke testinde backend health endpoint'i `ok`, doğrudan backend candidate count `20`, Nginx üzerinden proxied candidate count `20` ve frontend HTTP status `200` olarak doğrulanmıştır.
 
 Python testleri:
 
@@ -1048,12 +1051,15 @@ voltsight-ai/
 |           `-- create_ankara_decision_support_export.py
 |
 |-- backend/
-|   `-- app/
-|       |-- core/config.py
-|       |-- routers/candidates.py
-|       |-- schemas/candidates.py
-|       |-- services/candidate_service.py
-|       `-- main.py
+|   |-- app/
+|   |   |-- core/config.py
+|   |   |-- routers/candidates.py
+|   |   |-- schemas/candidates.py
+|   |   |-- services/candidate_service.py
+|   |   `-- main.py
+|   |-- Dockerfile
+|   |-- requirements.txt
+|   `-- .dockerignore
 |
 |-- frontend/
 |   |-- src/
@@ -1063,12 +1069,16 @@ voltsight-ai/
 |   |   |-- types/
 |   |   |-- App.tsx
 |   |   `-- main.tsx
+|   |-- Dockerfile
+|   |-- nginx.conf
+|   |-- .dockerignore
 |   |-- package.json
 |   |-- vite.config.ts
 |   `-- vitest.config.ts
 |
 |-- tests/
 |-- notebooks/
+|-- docker-compose.yml
 |-- pytest.ini
 |-- requirements.txt
 `-- README.md
@@ -1151,6 +1161,77 @@ Ana endpoint'ler:
 | GET | `/api/v1/candidates/{grid_id}` | Tek candidate için ayrıntılı suitability + ML support |
 
 API request sırasında model retraining yapmaz. Önceden doğrulanmış decision-support JSON export'unu schema validation ve service katmanı üzerinden read-only olarak sunar.
+
+## Docker Compose ile Çalıştırma
+
+Backend ve production frontend tek komutla container olarak ayağa kaldırılabilir.
+
+Ön koşul olarak decision-support export'unun localde bulunması gerekir:
+
+```powershell
+Test-Path ".\data\processed\ankara_decision_support_shortlist.json"
+```
+
+Sonuç `True` ise:
+
+```powershell
+docker compose up --build
+```
+
+Servisler:
+
+```text
+Dashboard: http://127.0.0.1:5173
+Swagger:   http://127.0.0.1:8000/docs
+Health:    http://127.0.0.1:8000/health
+```
+
+Container mimarisi:
+
+```text
+Browser
+  |
+  v
+Nginx frontend container
+  |-- static React production build
+  |
+  `-- /api/* proxy
+          |
+          v
+     FastAPI backend container
+          |
+          v
+read-only decision-support JSON
+```
+
+`docker-compose.yml`, `data/processed/` klasörünü backend container'a read-only mount eder. Büyük processed dataset'ler Git deposunda tutulmadığı için `ankara_decision_support_shortlist.json` yeni bir ortamda önce pipeline üzerinden üretilmelidir.
+
+Doğrulama için:
+
+```powershell
+Invoke-RestMethod "http://127.0.0.1:8000/health"
+
+(Invoke-RestMethod "http://127.0.0.1:8000/api/v1/summary").candidate_count
+
+(Invoke-RestMethod "http://127.0.0.1:5173/api/v1/summary").candidate_count
+
+(Invoke-WebRequest "http://127.0.0.1:5173" -UseBasicParsing).StatusCode
+```
+
+Validated smoke-test sonucu:
+
+```text
+Backend health:         ok / data_available=True
+Backend candidate_count: 20
+Nginx proxied API count:  20
+Frontend HTTP status:     200
+```
+
+Stack'i kapatmak için:
+
+```powershell
+docker compose down
+```
 
 ---
 
@@ -1378,11 +1459,16 @@ Export contract, final 20 shortlist ile fold-normalized candidate ML support ver
 - OpenLayers
 - responsive dashboard UI
 
-## Test ve Yazılım Mühendisliği
+## Test, Deployment ve Yazılım Mühendisliği
 
 - Pytest
 - Vitest
 - React Testing Library
+- Docker
+- Docker Compose
+- Nginx
+- multi-stage frontend image build
+- backend healthcheck
 - Git
 - GitHub
 - chunk-based processing
@@ -1424,7 +1510,7 @@ Bu nedenle VoltSight sonuçları:
 
 # Sonraki Aşamalar
 
-Ana data engineering, suitability, population/activity context, canonical spatial-ML pipeline, decision-support export, FastAPI backend ve React/OpenLayers dashboard tamamlanmıştır.
+Ana data engineering, suitability, population/activity context, canonical spatial-ML pipeline, decision-support export, FastAPI backend, React/OpenLayers dashboard ve Docker Compose packaging tamamlanmıştır.
 
 Bir sonraki güçlü geliştirme alanları:
 
@@ -1435,12 +1521,11 @@ Bir sonraki güçlü geliştirme alanları:
 - electricity-distribution capacity feature'ları
 - prediction uncertainty / stability reporting
 - candidate-level local explainability
-- Docker packaging
-- CI/CD ve deployment
+- CI/CD ve hosted deployment
 - frontend bundle / loading optimizasyonu
 - experiment tracking / model registry
 
-Öncelik, daha agresif model tuning'den önce **daha iyi bağımsız veri, external validation ve deployment reproducibility** eklemektir.
+Öncelik, daha agresif model tuning'den önce **daha iyi bağımsız veri, external validation ve production-grade CI/CD** eklemektir.
 
 ---
 
