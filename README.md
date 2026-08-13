@@ -38,7 +38,25 @@ Proje ilk olarak **Çankaya, Ankara** üzerinde 250 × 250 metre çözünürlük
 | Suitability ↔ fold-normalized ML consensus Spearman | 0,6865 |
 | Final 20: ≥2 model candidate top %20 | 20/20 |
 | Final 20: ≥2 model candidate top %10 | 19/20 |
-| Otomatik test kapsamı | 450+ Pytest kontrolü |
+| Otomatik test kapsamı | 489 Pytest + 10 Vitest |
+
+---
+
+## Interactive Decision-Support Dashboard
+
+![VoltSight Ankara Decision-Support Dashboard](docs/voltsight_dashboard.png)
+
+Araştırma ve modelleme çıktıları, read-only FastAPI servisi ve React + TypeScript + OpenLayers arayüzü üzerinden etkileşimli bir karar-destek ekranına taşınmıştır.
+
+Dashboard:
+
+- 25 km spatial-diversity kuralıyla seçilen final 20 adayı listeler,
+- adayları Ankara haritasında etkileşimli marker'larla gösterir,
+- seçilen adayın suitability, feasibility, need, accessibility, parking, infrastructure-gap ve technology-gap bileşenlerini açıklar,
+- Logistic Regression, Random Forest ve HistGradientBoosting için fold-normalized spatial OOF percentile'larını ayrı ayrı gösterir,
+- cross-model disagreement durumlarını gizlemek yerine görünür tutar.
+
+> **Karar politikası değişmez:** suitability ana karar katmanıdır. ML support yalnızca historical-pattern supporting evidence'dır ve suitability skoruna blend edilmez.
 
 ---
 
@@ -91,10 +109,11 @@ Spatial diversity yalnızca shortlist seçim aşamasını etkiler. Adayların or
 
 # Proje Mimarisi
 
-VoltSight Ankara pipeline'ı iki ana analitik katmana ayrılır:
+VoltSight Ankara mimarisi üç katmana ayrılır:
 
 1. **Explainable suitability / site-selection**
 2. **Spatially validated ML evidence**
+3. **Read-only decision-support application**
 
 ```text
 Ankara Administrative Boundary
@@ -135,29 +154,42 @@ Population Context             OSM Urban Activity
  OSM Activity Validation        |
           |                     v
           v                Final 20 Sites
- Canonical Activity15
-          |
-          v
-  5 km Spatial Block CV
-          |
-   +------+------+------+
-   |      |      |
-   v      v      v
- Logistic  RF    HGB
-   \      |      /
-    \     |     /
-     v    v    v
- Fold-normalized OOF
-   Candidate Support
-          |
-          v
-Final 20 agreement diagnostic
+ Canonical Activity15           |
+          |                     |
+          v                     |
+  5 km Spatial Block CV         |
+          |                     |
+   +------+------+              |
+   |      |      |              |
+   v      v      v              |
+ Logistic  RF    HGB            |
+   \      |      /              |
+    \     |     /               |
+     v    v    v                 |
+ Fold-normalized OOF            |
+   Candidate Support            |
+          |                     |
+          +----------+----------+
+                     |
+                     v
+          Decision-Support Export
+              CSV + JSON
+                     |
+                     v
+               FastAPI API
+                     |
+                     v
+       React + TypeScript + OpenLayers
+                     |
+                     v
+        Interactive Ankara Dashboard
 ```
 
 Suitability ve ML katmanları aynı problem değildir:
 
 - **Suitability** yeni istasyon adayı hücreleri karar destek amacıyla sıralar.
 - **ML** mevcut istasyon dağılımında hangi mekânsal özelliklerin predictive signal taşıdığını spatial validation altında inceler.
+- **Web uygulaması** bu iki katmanı birleştirmez; mevcut export contract'ını açıklanabilir biçimde sunar.
 
 ---
 
@@ -884,9 +916,9 @@ docs/ankara_suitability_ml_support.png
 
 # Test ve Veri Doğrulama
 
-VoltSight pipeline'larında Pytest tabanlı otomatik kontroller kullanılır.
+VoltSight pipeline'larında Pytest; web istemcisinde ise Vitest + React Testing Library tabanlı otomatik kontroller kullanılır.
 
-Kontrol edilen konular arasında:
+Python tarafında kontrol edilen konular arasında:
 
 - CRS doğruluğu
 - geometry validity
@@ -912,15 +944,44 @@ Kontrol edilen konular arasında:
 - validation-fold permutation importance
 - fold-normalized OOF candidate-support ranking
 - shortlist ML-support agreement
+- decision-support export contract
+- FastAPI summary / candidate endpoint davranışları
 
-bulunur.
+Frontend tarafında:
 
-Repo 450'den fazla otomatik test içermektedir.
+- candidate-list rendering ve selected state
+- candidate selection callback
+- suitability ile ML support'un ayrı gösterimi
+- cross-model disagreement / agreement rendering
+- API route construction
+- candidate ID encoding
+- backend error detail propagation
 
-Testleri çalıştırmak için:
+Latest validated test snapshot:
+
+```text
+Python / Pytest:    489 passed, 3 warnings
+Frontend / Vitest:  10 passed
+Frontend build:     Vite production build passed
+```
+
+Python testleri:
 
 ```powershell
 python -m pytest -q
+```
+
+Frontend testleri:
+
+```powershell
+Set-Location ".\frontend"
+npm run test:run
+```
+
+Production frontend build:
+
+```powershell
+npm run build
 ```
 
 ---
@@ -937,6 +998,7 @@ voltsight-ai/
 |   `-- processed/
 |
 |-- docs/
+|   |-- voltsight_dashboard.png
 |   |-- ankara_suitability_map.png
 |   |-- ankara_final_shortlist_map.png
 |   |-- ankara_suitability_distribution.png
@@ -980,22 +1042,33 @@ voltsight-ai/
 |           |-- create_ankara_diverse_candidate_shortlist.py
 |           |-- create_ankara_result_visualizations.py
 |           |-- create_ankara_spatial_cv_folds.py
-|           |-- train_ankara_logistic_baseline.py
-|           |-- train_ankara_random_forest_baseline.py
-|           |-- train_ankara_gradient_boosting_baseline.py
-|           |-- analyze_ankara_population_incremental_value.py
-|           |-- analyze_ankara_activity_features.py
-|           |-- analyze_ankara_activity_incremental_value.py
-|           |-- analyze_ankara_activity_category_context.py
-|           |-- analyze_ankara_rf_activity_seed_stability.py
 |           |-- evaluate_ankara_canonical_ml_models.py
 |           |-- analyze_ankara_canonical_spatial_permutation_importance.py
-|           `-- analyze_ankara_candidate_ml_support.py
+|           |-- analyze_ankara_candidate_ml_support.py
+|           `-- create_ankara_decision_support_export.py
+|
+|-- backend/
+|   `-- app/
+|       |-- core/config.py
+|       |-- routers/candidates.py
+|       |-- schemas/candidates.py
+|       |-- services/candidate_service.py
+|       `-- main.py
+|
+|-- frontend/
+|   |-- src/
+|   |   |-- components/
+|   |   |-- services/
+|   |   |-- test/
+|   |   |-- types/
+|   |   |-- App.tsx
+|   |   `-- main.tsx
+|   |-- package.json
+|   |-- vite.config.ts
+|   `-- vitest.config.ts
 |
 |-- tests/
 |-- notebooks/
-|-- backend/
-|-- frontend/
 |-- pytest.ini
 |-- requirements.txt
 `-- README.md
@@ -1012,7 +1085,7 @@ git clone https://github.com/ilginbor/voltsight-ai.git
 cd voltsight-ai
 ```
 
-Sanal ortam oluşturun:
+Python sanal ortamını oluşturun:
 
 ```powershell
 python -m venv .venv
@@ -1025,18 +1098,59 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv\Scripts\Activate.ps1
 ```
 
-Bağımlılıkları kurun:
+Python bağımlılıklarını kurun:
 
 ```powershell
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-Testleri çalıştırın:
+Backend'i başlatın:
 
 ```powershell
-python -m pytest -q
+python -m uvicorn backend.app.main:app --reload
 ```
+
+Backend varsayılan olarak:
+
+```text
+http://127.0.0.1:8000
+```
+
+üzerinde çalışır. OpenAPI / Swagger arayüzü:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Yeni bir terminalde frontend'i kurup başlatın:
+
+```powershell
+Set-Location ".\frontend"
+npm install
+npm run dev
+```
+
+Frontend development URL:
+
+```text
+http://127.0.0.1:5173
+```
+
+Vite development proxy, `/api` ve `/health` isteklerini local FastAPI servisine yönlendirir.
+
+## Read-Only API Contract
+
+Ana endpoint'ler:
+
+| Method | Endpoint | Açıklama |
+|---|---|---|
+| GET | `/health` | Servis ve decision-support veri durumu |
+| GET | `/api/v1/summary` | Schema, study-area ve decision-policy özeti |
+| GET | `/api/v1/candidates` | Final 20 candidate listesi |
+| GET | `/api/v1/candidates/{grid_id}` | Tek candidate için ayrıntılı suitability + ML support |
+
+API request sırasında model retraining yapmaz. Önceden doğrulanmış decision-support JSON export'unu schema validation ve service katmanı üzerinden read-only olarak sunar.
 
 ---
 
@@ -1205,6 +1319,24 @@ docs/ankara_suitability_ml_support.png
 ---
 
 
+## 16. Decision-Support Export
+
+```powershell
+python ".\src\voltsight\models\create_ankara_decision_support_export.py"
+```
+
+Outputs:
+
+```text
+data/processed/ankara_decision_support_shortlist.csv
+data/processed/ankara_decision_support_shortlist.json
+docs/ankara_decision_support_export_summary.md
+```
+
+Export contract, final 20 shortlist ile fold-normalized candidate ML support verisini tek read-only uygulama payload'ında birleştirir. `ml_is_blended_into_suitability` alanı `false` olarak korunur.
+
+---
+
 # Kullanılan Teknolojiler
 
 ## Veri Bilimi ve ML
@@ -1228,12 +1360,31 @@ docs/ankara_suitability_ml_support.png
 - GeoPackage
 - GeoJSON
 - GeoTIFF
+- OpenLayers
 
-## Yazılım Mühendisliği
+## Backend ve API
 
+- FastAPI
+- Pydantic
+- Uvicorn
+- OpenAPI / Swagger
+- read-only JSON data-serving service
+
+## Frontend
+
+- React
+- TypeScript
+- Vite
+- OpenLayers
+- responsive dashboard UI
+
+## Test ve Yazılım Mühendisliği
+
+- Pytest
+- Vitest
+- React Testing Library
 - Git
 - GitHub
-- Pytest
 - chunk-based processing
 - deterministic caching
 - checkpoint / resume
@@ -1273,24 +1424,23 @@ Bu nedenle VoltSight sonuçları:
 
 # Sonraki Aşamalar
 
-Ana data engineering, suitability, population/activity context ve canonical spatial-ML pipeline'ları tamamlanmıştır.
+Ana data engineering, suitability, population/activity context, canonical spatial-ML pipeline, decision-support export, FastAPI backend ve React/OpenLayers dashboard tamamlanmıştır.
 
 Bir sonraki güçlü geliştirme alanları:
 
-- SHAP / local explainability
-- prediction uncertainty / stability reporting
-- external or temporal validation
-- daha zengin land-use ve employment context
-- traffic / mobility feature'ları
+- external veya temporal validation
+- daha zengin land-use / employment context
+- traffic ve mobility feature'ları
 - EV ownership proxy'leri
 - electricity-distribution capacity feature'ları
-- candidate-level suitability + ML-support dashboard
-- FastAPI inference / decision-support API
-- React + OpenLayers web visualization
+- prediction uncertainty / stability reporting
+- candidate-level local explainability
 - Docker packaging
+- CI/CD ve deployment
+- frontend bundle / loading optimizasyonu
 - experiment tracking / model registry
 
-Öncelik, daha agresif model tuning'den önce **daha iyi bağımsız veri ve external validation** eklemektir.
+Öncelik, daha agresif model tuning'den önce **daha iyi bağımsız veri, external validation ve deployment reproducibility** eklemektir.
 
 ---
 
