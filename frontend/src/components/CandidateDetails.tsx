@@ -8,12 +8,50 @@ import {
 
 interface CandidateDetailsProps {
   candidate: DecisionSupportCandidate | null;
+  isCompared?: boolean;
+  compareDisabled?: boolean;
+  onToggleCompare?: (gridId: string) => void;
 }
 
 function formatDistance(
   meters: number,
 ): string {
   return `${(meters / 1000).toFixed(1)} km`;
+}
+
+function translateExplanation(
+  explanation: string,
+): string {
+  const translations: Record<string, string> = {
+    "strong road accessibility":
+      "güçlü yol erişilebilirliği",
+    "strong parking feasibility":
+      "güçlü otopark uygulanabilirliği",
+    "large charging infrastructure gap":
+      "yüksek şarj altyapısı açığı",
+    "AC/DC technology gap":
+      "AC/DC teknoloji açığı",
+    "moderate site feasibility":
+      "orta düzey saha uygulanabilirliği",
+    "moderate infrastructure need":
+      "orta düzey altyapı ihtiyacı",
+  };
+
+  return explanation
+    .split(";")
+    .map(
+      (part) => {
+        const normalized =
+          part.trim();
+
+        return (
+          translations[normalized] ??
+          normalized
+        );
+      },
+    )
+    .filter(Boolean)
+    .join("; ");
 }
 
 function supportLabel(
@@ -25,21 +63,24 @@ function supportLabel(
       .support_label
   ) {
     case "all_three_top_20pct":
-      return "All three models · top 20%";
+      return "Üç model de · ilk %20";
 
     case "two_of_three_top_20pct":
-      return "Two of three models · top 20%";
+      return "Üç modelden ikisi · ilk %20";
 
     case "one_of_three_top_20pct":
-      return "One model · top 20%";
+      return "Bir model · ilk %20";
 
     default:
-      return "No model · top 20%";
+      return "Hiçbiri · ilk %20";
   }
 }
 
 export function CandidateDetails({
   candidate,
+  isCompared = false,
+  compareDisabled = false,
+  onToggleCompare,
 }: CandidateDetailsProps) {
   if (
     candidate ===
@@ -48,8 +89,8 @@ export function CandidateDetails({
     return (
       <aside className="detail-panel detail-panel--empty">
         <p>
-          Select a candidate on the map
-          or shortlist.
+          Haritadan veya kısa listeden
+          bir aday seçin.
         </p>
       </aside>
     );
@@ -67,7 +108,7 @@ export function CandidateDetails({
       <div className="detail-hero">
         <div>
           <p className="eyebrow">
-            Candidate{" "}
+            Aday{" "}
             {candidate.selection_rank}
           </p>
 
@@ -76,20 +117,55 @@ export function CandidateDetails({
           </h2>
         </div>
 
-        <span
-          className={`priority-chip priority-chip--${suitability.priority_band.toLowerCase()}`}
-        >
-          Priority{" "}
+        <div className="detail-hero__actions">
+          <span
+            className={`priority-chip priority-chip--${suitability.priority_band.toLowerCase()}`}
+          >
+            Öncelik{" "}
+            {
+              suitability.priority_band
+            }
+          </span>
+
           {
-            suitability.priority_band
+            onToggleCompare
+              ? (
+                <button
+                  type="button"
+                  className={
+                    isCompared
+                      ? "compare-action compare-action--active"
+                      : "compare-action"
+                  }
+                  disabled={
+                    compareDisabled
+                  }
+                  onClick={
+                    () => {
+                      onToggleCompare(
+                        candidate.grid_id,
+                      );
+                    }
+                  }
+                >
+                  {
+                    isCompared
+                      ? "Karşılaştırmadan çıkar"
+                      : compareDisabled
+                        ? "Karşılaştırma dolu"
+                        : "Karşılaştır"
+                  }
+                </button>
+              )
+              : null
           }
-        </span>
+        </div>
       </div>
 
       <div className="primary-score">
         <div>
           <span>
-            Explainable suitability
+            Açıklanabilir uygunluk
           </span>
           <strong>
             {suitability.score.toFixed(
@@ -99,7 +175,7 @@ export function CandidateDetails({
         </div>
 
         <small>
-          Province rank #
+          Ankara geneli sıra #
           {suitability.rank.toLocaleString()}
         </small>
       </div>
@@ -107,22 +183,22 @@ export function CandidateDetails({
       <section className="detail-section">
         <div className="section-title-row">
           <h3>
-            Decision factors
+            Karar bileşenleri
           </h3>
           <span>
-            Primary layer
+            Ana katman
           </span>
         </div>
 
         <MetricBar
-          label="Feasibility"
+          label="Uygulanabilirlik"
           value={
             suitability.feasibility
           }
         />
 
         <MetricBar
-          label="Need"
+          label="İhtiyaç"
           value={
             suitability.need
           }
@@ -130,7 +206,7 @@ export function CandidateDetails({
 
         <div className="metric-grid">
           <MetricBar
-            label="Accessibility"
+            label="Erişilebilirlik"
             value={
               suitability.accessibility
             }
@@ -138,7 +214,7 @@ export function CandidateDetails({
           />
 
           <MetricBar
-            label="Parking"
+            label="Otopark"
             value={
               suitability.parking
             }
@@ -146,7 +222,7 @@ export function CandidateDetails({
           />
 
           <MetricBar
-            label="Infrastructure gap"
+            label="Altyapı açığı"
             value={
               suitability.infrastructure_gap
             }
@@ -154,7 +230,7 @@ export function CandidateDetails({
           />
 
           <MetricBar
-            label="Technology gap"
+            label="Teknoloji açığı"
             value={
               suitability.technology_gap
             }
@@ -166,7 +242,7 @@ export function CandidateDetails({
       <section className="detail-section">
         <div className="section-title-row">
           <h3>
-            Historical-pattern ML support
+            Tarihsel örüntü ML desteği
           </h3>
           <span className="support-chip">
             {mlSupport.consensus_percentile.toFixed(
@@ -176,13 +252,13 @@ export function CandidateDetails({
         </div>
 
         <p className="support-explainer">
-          Fold-normalized spatial OOF
-          percentile. Supporting evidence,
-          not a blended final score.
+          Fold içi normalize edilmiş mekânsal OOF
+          yüzdeliği. Birleştirilmiş final skor
+          değil, destekleyici kanıttır.
         </p>
 
         <MetricBar
-          label="Logistic regression"
+          label="Lojistik regresyon"
           value={
             mlSupport.logistic_regression_percentile
           }
@@ -190,7 +266,7 @@ export function CandidateDetails({
         />
 
         <MetricBar
-          label="Random forest"
+          label="Random Forest"
           value={
             mlSupport.random_forest_percentile
           }
@@ -213,11 +289,11 @@ export function CandidateDetails({
           </strong>
 
           <span>
-            Spread{" "}
+            Model farkı{" "}
             {mlSupport.model_percentile_spread.toFixed(
               1,
             )}{" "}
-            pts
+            puan
           </span>
         </div>
 
@@ -226,27 +302,26 @@ export function CandidateDetails({
             ? (
               <div className="warning-box">
                 <strong>
-                  Model disagreement
+                  Model uyuşmazlığı
                 </strong>
 
                 <span>
-                  The three models do not
-                  provide uniformly strong
-                  support. Keep the individual
-                  percentiles visible.
+                  Üç model aynı düzeyde güçlü destek
+                  vermiyor. Model yüzdeliklerini
+                  ayrı ayrı değerlendirin.
                 </span>
               </div>
             )
             : (
               <div className="agreement-box">
                 <strong>
-                  Cross-model agreement
+                  Modeller arası uyum
                 </strong>
 
                 <span>
-                  All three models place this
-                  candidate in the candidate
-                  top 20%.
+                  Üç model de bu adayı, adaylar
+                  arasında ilk %20'lik dilime
+                  yerleştiriyor.
                 </span>
               </div>
             )
@@ -255,13 +330,13 @@ export function CandidateDetails({
 
       <section className="detail-section detail-section--facts">
         <h3>
-          Spatial context
+          Mekânsal bağlam
         </h3>
 
         <dl className="facts-grid">
           <div>
             <dt>
-              Nearest shortlist site
+              En yakın kısa liste adayı
             </dt>
             <dd>
               {
@@ -273,7 +348,7 @@ export function CandidateDetails({
 
           <div>
             <dt>
-              Separation
+              Mesafe
             </dt>
             <dd>
               {formatDistance(
@@ -284,7 +359,7 @@ export function CandidateDetails({
 
           <div>
             <dt>
-              Longitude
+              Boylam
             </dt>
             <dd>
               {candidate.location.longitude.toFixed(
@@ -295,7 +370,7 @@ export function CandidateDetails({
 
           <div>
             <dt>
-              Latitude
+              Enlem
             </dt>
             <dd>
               {candidate.location.latitude.toFixed(
@@ -308,11 +383,13 @@ export function CandidateDetails({
 
       <section className="explanation-box">
         <p className="eyebrow">
-          Why this site?
+          Bu bölge neden öneriliyor?
         </p>
         <p>
           {
-            suitability.explanation
+            translateExplanation(
+              suitability.explanation,
+            )
           }
         </p>
       </section>

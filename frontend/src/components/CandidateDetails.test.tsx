@@ -19,7 +19,7 @@ describe(
   "CandidateDetails",
   () => {
     it(
-      "shows the explainable suitability and ML support as separate sections",
+      "uygunluk ve ML destek katmanlarını ayrı bölümlerde gösterir",
       () => {
         render(
           <CandidateDetails
@@ -31,13 +31,13 @@ describe(
 
         expect(
           screen.getByText(
-            "Explainable suitability",
+            "Açıklanabilir uygunluk",
           ),
         ).toBeInTheDocument();
 
         expect(
           screen.getByText(
-            "Historical-pattern ML support",
+            "Tarihsel örüntü ML desteği",
           ),
         ).toBeInTheDocument();
 
@@ -58,7 +58,7 @@ describe(
     );
 
     it(
-      "keeps cross-model disagreement visible",
+      "modeller arası uyuşmazlığı görünür tutar",
       () => {
         render(
           <CandidateDetails
@@ -70,13 +70,13 @@ describe(
 
         expect(
           screen.getByText(
-            "Model disagreement",
+            "Model uyuşmazlığı",
           ),
         ).toBeInTheDocument();
 
         expect(
           screen.getByText(
-            "Two of three models · top 20%",
+            "Üç modelden ikisi · ilk %20",
           ),
         ).toBeInTheDocument();
 
@@ -95,7 +95,7 @@ describe(
     );
 
     it(
-      "shows agreement when all three models are in the top 20 percent",
+      "üç modelin de ilk yüzde 20 içinde olduğu durumda uyumu gösterir",
       () => {
         const candidate =
           createCandidate({
@@ -125,20 +125,20 @@ describe(
 
         expect(
           screen.getByText(
-            "Cross-model agreement",
+            "Modeller arası uyum",
           ),
         ).toBeInTheDocument();
 
         expect(
           screen.getByText(
-            "All three models · top 20%",
+            "Üç model de · ilk %20",
           ),
         ).toBeInTheDocument();
       },
     );
 
     it(
-      "renders an empty-state instruction without a selected candidate",
+      "aday seçili değilken Türkçe boş durum mesajını gösterir",
       () => {
         render(
           <CandidateDetails
@@ -150,7 +150,26 @@ describe(
 
         expect(
           screen.getByText(
-            "Select a candidate on the map or shortlist.",
+            "Haritadan veya kısa listeden bir aday seçin.",
+          ),
+        ).toBeInTheDocument();
+      },
+    );
+
+    it(
+      "aday açıklamasını Türkçeleştirir",
+      () => {
+        render(
+          <CandidateDetails
+            candidate={
+              createCandidate()
+            }
+          />,
+        );
+
+        expect(
+          screen.getByText(
+            "güçlü yol erişilebilirliği; yüksek şarj altyapısı açığı; AC/DC teknoloji açığı",
           ),
         ).toBeInTheDocument();
       },

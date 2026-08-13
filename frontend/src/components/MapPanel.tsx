@@ -30,12 +30,14 @@ interface MapPanelProps {
   candidates: DecisionSupportCandidate[];
   selectedGridId: string | null;
   onSelect: (gridId: string) => void;
+  compareGridIds?: string[];
 }
 
 export function MapPanel({
   candidates,
   selectedGridId,
   onSelect,
+  compareGridIds = [],
 }: MapPanelProps) {
   const mapElementRef =
     useRef<HTMLDivElement | null>(
@@ -57,6 +59,11 @@ export function MapPanel({
       selectedGridId,
     );
 
+  const compareGridIdsRef =
+    useRef<string[]>(
+      compareGridIds,
+    );
+
   useEffect(
     () => {
       selectedGridIdRef.current =
@@ -71,6 +78,18 @@ export function MapPanel({
 
   useEffect(
     () => {
+      compareGridIdsRef.current =
+        compareGridIds;
+
+      vectorLayerRef.current?.changed();
+    },
+    [
+      compareGridIds,
+    ],
+  );
+
+  useEffect(
+    () => {
       if (
         mapElementRef.current ===
         null
@@ -80,7 +99,9 @@ export function MapPanel({
 
       const features =
         candidates.map(
-          (candidate) => {
+          (
+            candidate,
+          ) => {
             const feature =
               new Feature({
                 geometry:
@@ -146,19 +167,28 @@ export function MapPanel({
               gridId ===
               selectedGridIdRef.current;
 
+            const compared =
+              compareGridIdsRef.current.includes(
+                gridId,
+              );
+
             return new Style({
               image:
                 new CircleStyle({
                   radius:
                     selected
                       ? 13
-                      : 9,
+                      : compared
+                        ? 11
+                        : 9,
                   fill:
                     new Fill({
                       color:
                         selected
                           ? "#f6b73c"
-                          : "#173f5f",
+                          : compared
+                            ? "#2f855a"
+                            : "#173f5f",
                     }),
                   stroke:
                     new Stroke({
@@ -167,7 +197,9 @@ export function MapPanel({
                       width:
                         selected
                           ? 4
-                          : 2,
+                          : compared
+                            ? 3
+                            : 2,
                     }),
                 }),
               text:
@@ -219,7 +251,9 @@ export function MapPanel({
 
       map.on(
         "singleclick",
-        (event) => {
+        (
+          event,
+        ) => {
           const feature =
             map.forEachFeatureAtPixel(
               event.pixel,
@@ -232,7 +266,9 @@ export function MapPanel({
               },
             );
 
-          if (feature) {
+          if (
+            feature
+          ) {
             const gridId =
               feature.get(
                 "gridId",
@@ -252,7 +288,9 @@ export function MapPanel({
 
       map.on(
         "pointermove",
-        (event) => {
+        (
+          event,
+        ) => {
           if (
             !mapElementRef.current
           ) {
@@ -330,31 +368,53 @@ export function MapPanel({
             Ankara · Türkiye
           </p>
           <h2>
-            Candidate map
+            Aday haritası
           </h2>
         </div>
 
         <div className="map-legend">
           <span>
             <i className="map-dot" />
-            candidate
+            aday
+          </span>
+          <span>
+            <i className="map-dot map-dot--compare" />
+            karşılaştırma
           </span>
           <span>
             <i className="map-dot map-dot--selected" />
-            selected
+            seçili
           </span>
         </div>
       </div>
 
-      <div
-        ref={mapElementRef}
-        className="map-canvas"
-        aria-label="Interactive Ankara candidate map"
-      />
+      <div className="map-canvas-wrap">
+        <div
+          ref={
+            mapElementRef
+          }
+          className="map-canvas"
+          aria-label="Etkileşimli Ankara aday haritası"
+        />
+
+        {
+          candidates.length ===
+          0
+            ? (
+              <div className="map-empty-overlay">
+                Mevcut filtrelerle eşleşen
+                aday yok.
+              </div>
+            )
+            : null
+        }
+      </div>
 
       <p className="map-caption">
-        Marker numbers match the 25 km
-        spatial-diversity selection order.
+        İşaretçi numaraları 25 km
+        mekânsal çeşitlilik seçim sırasını gösterir.
+        Filtreler hem kısa listeyi hem de
+        haritayı günceller.
       </p>
     </section>
   );

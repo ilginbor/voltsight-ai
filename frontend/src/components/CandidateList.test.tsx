@@ -1,4 +1,4 @@
-import {
+﻿import {
   fireEvent,
   render,
   screen,
@@ -73,7 +73,7 @@ describe(
 
         expect(
           screen.getByText(
-            "Final candidates",
+            "Final adaylar",
           ),
         ).toBeInTheDocument();
       },
@@ -122,3 +122,4 @@ describe(
     );
   },
 );
+
