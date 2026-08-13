@@ -26,6 +26,7 @@ Thumbs.db
 
 # Logs
 *.log
+logs/
 
 # Testing and coverage
 .pytest_cache/
@@ -57,9 +58,11 @@ data/processed/*
 # Frontend dependencies and builds
 frontend/node_modules/
 frontend/dist/
+frontend/*.tsbuildinfo
 
 # Temporary files
 *.tmp
 *.temp
+
 # OSMnx download cache
 cache/
