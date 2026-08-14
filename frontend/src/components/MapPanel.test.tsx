@@ -1,4 +1,5 @@
 import {
+  fireEvent,
   render,
   screen,
   waitFor,
@@ -19,6 +20,8 @@ const olMocks =
   vi.hoisted(
     () => ({
       fit:
+        vi.fn(),
+      animate:
         vi.fn(),
       changed:
         vi.fn(),
@@ -151,6 +154,14 @@ vi.mock(
             ...args,
           );
         }
+
+        animate(
+          ...args: unknown[]
+        ) {
+          olMocks.animate(
+            ...args,
+          );
+        }
       },
   }),
 );
@@ -164,12 +175,18 @@ vi.mock(
           fit: (
             ...args: unknown[]
           ) => void;
+          animate: (
+            ...args: unknown[]
+          ) => void;
         };
 
         constructor(
           options: {
             view: {
               fit: (
+                ...args: unknown[]
+              ) => void;
+              animate: (
                 ...args: unknown[]
               ) => void;
             };
@@ -241,13 +258,14 @@ describe(
     beforeEach(
       () => {
         olMocks.fit.mockClear();
+        olMocks.animate.mockClear();
         olMocks.changed.mockClear();
         olMocks.setTarget.mockClear();
       },
     );
 
     it(
-      "Türkçe harita başlığını ve lejandı gösterir",
+      "Türkçe harita başlığını ve seçim lejandını gösterir",
       () => {
         render(
           <MapPanel
@@ -301,6 +319,117 @@ describe(
     );
 
     it(
+      "uygunluk görünümünü varsayılan olarak aktif eder",
+      () => {
+        render(
+          <MapPanel
+            candidates={[
+              createCandidate(),
+            ]}
+            selectedGridId="ANK_004300"
+            onSelect={
+              vi.fn()
+            }
+          />,
+        );
+
+        expect(
+          screen.getByRole(
+            "button",
+            {
+              name:
+                "Uygunluk",
+            },
+          ),
+        ).toHaveAttribute(
+          "aria-pressed",
+          "true",
+        );
+
+        expect(
+          screen.getByLabelText(
+            "Uygunluk ölçeği",
+          ),
+        ).toBeInTheDocument();
+      },
+    );
+
+    it(
+      "ML ve model uyuşmazlığı görünüm modları arasında geçiş yapar",
+      () => {
+        render(
+          <MapPanel
+            candidates={[
+              createCandidate(),
+            ]}
+            selectedGridId="ANK_004300"
+            onSelect={
+              vi.fn()
+            }
+          />,
+        );
+
+        fireEvent.click(
+          screen.getByRole(
+            "button",
+            {
+              name:
+                "ML uzlaşısı",
+            },
+          ),
+        );
+
+        expect(
+          screen.getByRole(
+            "button",
+            {
+              name:
+                "ML uzlaşısı",
+            },
+          ),
+        ).toHaveAttribute(
+          "aria-pressed",
+          "true",
+        );
+
+        expect(
+          screen.getByLabelText(
+            "ML uzlaşısı ölçeği",
+          ),
+        ).toBeInTheDocument();
+
+        fireEvent.click(
+          screen.getByRole(
+            "button",
+            {
+              name:
+                "Model uyuşmazlığı",
+            },
+          ),
+        );
+
+        expect(
+          screen.getByRole(
+            "button",
+            {
+              name:
+                "Model uyuşmazlığı",
+            },
+          ),
+        ).toHaveAttribute(
+          "aria-pressed",
+          "true",
+        );
+
+        expect(
+          screen.getByLabelText(
+            "Model uyuşmazlığı ölçeği",
+          ),
+        ).toBeInTheDocument();
+      },
+    );
+
+    it(
       "adaylar bulunduğunda görünümü aday kapsamına oturtur",
       async () => {
         render(
@@ -326,7 +455,83 @@ describe(
     );
 
     it(
-      "filtre sonucu boşsa harita boş durumunu gösterir",
+      "seçili adaya odaklanır",
+      () => {
+        render(
+          <MapPanel
+            candidates={[
+              createCandidate(),
+            ]}
+            selectedGridId="ANK_004300"
+            onSelect={
+              vi.fn()
+            }
+          />,
+        );
+
+        fireEvent.click(
+          screen.getByRole(
+            "button",
+            {
+              name:
+                "Seçili adaya odaklan",
+            },
+          ),
+        );
+
+        expect(
+          olMocks.animate,
+        ).toHaveBeenCalledWith(
+          expect.objectContaining({
+            center: [
+              31.3405406,
+              40.1952609,
+            ],
+            zoom:
+              12,
+          }),
+        );
+      },
+    );
+
+    it(
+      "tüm adayları göster düğmesi harita kapsamını yeniden ayarlar",
+      () => {
+        render(
+          <MapPanel
+            candidates={[
+              createCandidate(),
+            ]}
+            selectedGridId="ANK_004300"
+            onSelect={
+              vi.fn()
+            }
+          />,
+        );
+
+        const initialFitCalls =
+          olMocks.fit.mock.calls.length;
+
+        fireEvent.click(
+          screen.getByRole(
+            "button",
+            {
+              name:
+                "Tüm adayları göster",
+            },
+          ),
+        );
+
+        expect(
+          olMocks.fit.mock.calls.length,
+        ).toBeGreaterThan(
+          initialFitCalls,
+        );
+      },
+    );
+
+    it(
+      "filtre sonucu boşsa harita boş durumunu ve devre dışı kontrolleri gösterir",
       () => {
         render(
           <MapPanel
@@ -347,6 +552,26 @@ describe(
             "Mevcut filtrelerle eşleşen aday yok.",
           ),
         ).toBeInTheDocument();
+
+        expect(
+          screen.getByRole(
+            "button",
+            {
+              name:
+                "Seçili adaya odaklan",
+            },
+          ),
+        ).toBeDisabled();
+
+        expect(
+          screen.getByRole(
+            "button",
+            {
+              name:
+                "Tüm adayları göster",
+            },
+          ),
+        ).toBeDisabled();
 
         expect(
           olMocks.fit,
