@@ -305,7 +305,7 @@ describe(
         );
 
         expect(
-          screen.getByTestId(
+          await screen.findByTestId(
             "map-selected-grid",
           ),
         ).toHaveTextContent(
@@ -688,6 +688,21 @@ describe(
         ).toBe(
           "ANK_055975",
         );
+      },
+    );
+
+    it(
+      "lazy yüklenen harita bileşenini başarıyla açar",
+      async () => {
+        render(
+          <App />,
+        );
+
+        expect(
+          await screen.findByTestId(
+            "map-panel-mock",
+          ),
+        ).toBeInTheDocument();
       },
     );
   },

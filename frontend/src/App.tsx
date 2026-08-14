@@ -1,4 +1,6 @@
 import {
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
@@ -20,9 +22,6 @@ import type {
   CandidateSupportFilter,
 } from "./components/CandidateList";
 import {
-  MapPanel,
-} from "./components/MapPanel";
-import {
   getCandidates,
   getSummary,
 } from "./services/api";
@@ -33,6 +32,59 @@ import type {
 import {
   downloadCandidateCsv,
 } from "./utils/candidateExport";
+
+const MapPanel =
+  lazy(
+    async () => {
+      const module =
+        await import(
+          "./components/MapPanel"
+        );
+
+      return {
+        default:
+          module.MapPanel,
+      };
+    },
+  );
+
+function MapPanelFallback() {
+  return (
+    <section
+      className="map-panel map-panel--loading"
+      aria-busy="true"
+      aria-label="Aday haritası yükleniyor"
+    >
+      <div className="map-panel__header">
+        <div>
+          <p className="eyebrow">
+            Ankara · Türkiye
+          </p>
+
+          <h2>
+            Aday haritası
+          </h2>
+        </div>
+      </div>
+
+      <div className="map-lazy-fallback">
+        <div
+          className="loader"
+          aria-hidden="true"
+        />
+
+        <strong>
+          Harita yükleniyor
+        </strong>
+
+        <span>
+          Harita bileşeni ayrı bir paket
+          olarak yükleniyor.
+        </span>
+      </div>
+    </section>
+  );
+}
 
 const MAX_COMPARE_CANDIDATES = 3;
 
@@ -892,20 +944,26 @@ function App() {
           }
         />
 
-        <MapPanel
-          candidates={
-            visibleCandidates
+        <Suspense
+          fallback={
+            <MapPanelFallback />
           }
-          selectedGridId={
-            selectedGridId
-          }
-          compareGridIds={
-            compareGridIds
-          }
-          onSelect={
-            handleSelect
-          }
-        />
+        >
+          <MapPanel
+            candidates={
+              visibleCandidates
+            }
+            selectedGridId={
+              selectedGridId
+            }
+            compareGridIds={
+              compareGridIds
+            }
+            onSelect={
+              handleSelect
+            }
+          />
+        </Suspense>
 
         <CandidateDetails
           candidate={

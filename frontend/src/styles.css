@@ -498,6 +498,40 @@ button {
   overflow: hidden;
 }
 
+.map-panel--loading {
+  min-height: 540px;
+}
+
+.map-lazy-fallback {
+  flex: 1;
+  min-height: 470px;
+  padding: 28px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  color: var(--muted);
+  text-align: center;
+  background:
+    linear-gradient(
+      180deg,
+      #f8fbfd,
+      #eef4f7
+    );
+}
+
+.map-lazy-fallback strong {
+  color: var(--navy-dark);
+  font-family: "Manrope", sans-serif;
+  font-size: 13px;
+}
+
+.map-lazy-fallback span {
+  max-width: 240px;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
 .map-panel__header {
   flex: 0 0 auto;
 }
