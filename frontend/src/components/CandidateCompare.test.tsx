@@ -2,6 +2,7 @@ import {
   fireEvent,
   render,
   screen,
+  within,
 } from "@testing-library/react";
 import {
   describe,
@@ -230,6 +231,85 @@ describe(
         expect(
           onClear,
         ).toHaveBeenCalledOnce();
+      },
+    );
+
+    it(
+      "karşılaştırma için deterministik metrik özetini gösterir",
+      () => {
+        render(
+          <CandidateCompare
+            candidates={
+              buildComparisonCandidates()
+            }
+            onRemove={
+              vi.fn()
+            }
+            onClear={
+              vi.fn()
+            }
+            onSelect={
+              vi.fn()
+            }
+          />,
+        );
+
+        const summary =
+          screen.getByLabelText(
+            "Karşılaştırma özeti",
+          );
+
+        expect(
+          within(
+            summary,
+          ).getByText(
+            "En yüksek uygunluk",
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          within(
+            summary,
+          ).getByText(
+            "En yüksek ML uzlaşısı",
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          within(
+            summary,
+          ).getByText(
+            "En düşük model farkı",
+          ),
+        ).toBeInTheDocument();
+
+        expect(
+          within(
+            summary,
+          ).getAllByText(
+            "ANK_004300",
+          ).length,
+        ).toBeGreaterThan(
+          0,
+        );
+
+        expect(
+          within(
+            summary,
+          ).getAllByText(
+            "ANK_055975",
+          ).length,
+        ).toBeGreaterThan(
+          0,
+        );
+
+        expect(
+          within(
+            summary,
+          ).getByText(
+            /Yeni veya birleşik bir skor üretilmez/i,
+          ),
+        ).toBeInTheDocument();
       },
     );
   },

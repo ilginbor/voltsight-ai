@@ -16,6 +16,184 @@ interface ComparisonRow {
   ) => string;
 }
 
+interface ComparisonHighlight {
+  label: string;
+  value: string;
+  gridIds: string[];
+}
+
+function bestCandidates(
+  candidates: DecisionSupportCandidate[],
+  value: (
+    candidate: DecisionSupportCandidate,
+  ) => number,
+  direction: "max" | "min",
+): DecisionSupportCandidate[] {
+  if (
+    candidates.length ===
+    0
+  ) {
+    return [];
+  }
+
+  const values =
+    candidates.map(
+      value,
+    );
+
+  const bestValue =
+    direction ===
+    "max"
+      ? Math.max(
+          ...values,
+        )
+      : Math.min(
+          ...values,
+        );
+
+  return candidates.filter(
+    (
+      candidate,
+    ) =>
+      Math.abs(
+        value(
+          candidate,
+        ) -
+        bestValue,
+      ) <
+      1e-9,
+  );
+}
+
+function comparisonHighlights(
+  candidates: DecisionSupportCandidate[],
+): ComparisonHighlight[] {
+  const definitions = [
+    {
+      label:
+        "En yüksek uygunluk",
+      direction:
+        "max" as const,
+      value:
+        (
+          candidate: DecisionSupportCandidate,
+        ) =>
+          candidate.suitability.score,
+      format:
+        (
+          candidate: DecisionSupportCandidate,
+        ) =>
+          candidate.suitability.score.toFixed(
+            2,
+          ),
+    },
+    {
+      label:
+        "En yüksek uygulanabilirlik",
+      direction:
+        "max" as const,
+      value:
+        (
+          candidate: DecisionSupportCandidate,
+        ) =>
+          candidate.suitability.feasibility,
+      format:
+        (
+          candidate: DecisionSupportCandidate,
+        ) =>
+          candidate.suitability.feasibility.toFixed(
+            1,
+          ),
+    },
+    {
+      label:
+        "En yüksek ihtiyaç",
+      direction:
+        "max" as const,
+      value:
+        (
+          candidate: DecisionSupportCandidate,
+        ) =>
+          candidate.suitability.need,
+      format:
+        (
+          candidate: DecisionSupportCandidate,
+        ) =>
+          candidate.suitability.need.toFixed(
+            1,
+          ),
+    },
+    {
+      label:
+        "En yüksek ML uzlaşısı",
+      direction:
+        "max" as const,
+      value:
+        (
+          candidate: DecisionSupportCandidate,
+        ) =>
+          candidate.ml_support.consensus_percentile,
+      format:
+        (
+          candidate: DecisionSupportCandidate,
+        ) =>
+          `${candidate.ml_support.consensus_percentile.toFixed(
+            1,
+          )}%`,
+    },
+    {
+      label:
+        "En düşük model farkı",
+      direction:
+        "min" as const,
+      value:
+        (
+          candidate: DecisionSupportCandidate,
+        ) =>
+          candidate.ml_support.model_percentile_spread,
+      format:
+        (
+          candidate: DecisionSupportCandidate,
+        ) =>
+          `${candidate.ml_support.model_percentile_spread.toFixed(
+            1,
+          )} puan`,
+    },
+  ];
+
+  return definitions.map(
+    (
+      definition,
+    ) => {
+      const winners =
+        bestCandidates(
+          candidates,
+          definition.value,
+          definition.direction,
+        );
+
+      return {
+        label:
+          definition.label,
+        value:
+          winners.length >
+          0
+            ? definition.format(
+                winners[0],
+              )
+            : "—",
+        gridIds:
+          winners.map(
+            (
+              candidate,
+            ) =>
+              candidate.grid_id,
+          ),
+      };
+    },
+  );
+}
+
 const comparisonRows: ComparisonRow[] = [
   {
     label: "Uygunluk",
@@ -112,6 +290,11 @@ export function CandidateCompare({
   onClear,
   onSelect,
 }: CandidateCompareProps) {
+  const highlights =
+    comparisonHighlights(
+      candidates,
+    );
+
   return (
     <section className="compare-panel">
       <div className="compare-panel__header">
@@ -151,7 +334,75 @@ export function CandidateCompare({
             </div>
           )
           : (
-            <div className="compare-table-wrap">
+            <div className="compare-body">
+              <section
+                className="compare-summary"
+                aria-label="Karşılaştırma özeti"
+              >
+                <div className="compare-summary__intro">
+                  <div>
+                    <p className="eyebrow">
+                      Karşılaştırma özeti
+                    </p>
+
+                    <strong>
+                      Metrik bazlı öne çıkanlar
+                    </strong>
+                  </div>
+
+                  <span>
+                    Yeni veya birleşik bir skor
+                    üretilmez.
+                  </span>
+                </div>
+
+                <div className="compare-summary__grid">
+                  {
+                    highlights.map(
+                      (
+                        highlight,
+                      ) => (
+                        <div
+                          className="compare-highlight"
+                          key={
+                            highlight.label
+                          }
+                        >
+                          <span>
+                            {
+                              highlight.label
+                            }
+                          </span>
+
+                          <strong>
+                            {
+                              highlight.gridIds.join(
+                                " / ",
+                              )
+                            }
+                          </strong>
+
+                          <small>
+                            {
+                              highlight.value
+                            }
+                          </small>
+                        </div>
+                      ),
+                    )
+                  }
+                </div>
+
+                <p className="compare-summary__note">
+                  Özet yalnızca karşılaştırılan
+                  adayların görünür metriklerinden
+                  hesaplanır. Açıklanabilir uygunluk
+                  ana karar katmanı olarak kalır; ML
+                  desteği ayrı gösterilir.
+                </p>
+              </section>
+
+              <div className="compare-table-wrap">
               <table className="compare-table">
                 <thead>
                   <tr>
@@ -279,7 +530,8 @@ export function CandidateCompare({
                     }
                   </tr>
                 </tbody>
-              </table>
+                </table>
+              </div>
             </div>
           )
       }

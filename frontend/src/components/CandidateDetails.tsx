@@ -1,3 +1,8 @@
+import {
+  useEffect,
+  useState,
+} from "react";
+
 import type {
   DecisionSupportCandidate,
 } from "../types/api";
@@ -11,6 +16,11 @@ interface CandidateDetailsProps {
   isCompared?: boolean;
   compareDisabled?: boolean;
   onToggleCompare?: (gridId: string) => void;
+  onCopyLink?: (
+    gridId: string,
+  ) =>
+    | Promise<boolean>
+    | boolean;
 }
 
 function formatDistance(
@@ -81,7 +91,31 @@ export function CandidateDetails({
   isCompared = false,
   compareDisabled = false,
   onToggleCompare,
+  onCopyLink,
 }: CandidateDetailsProps) {
+  const [
+    copyStatus,
+    setCopyStatus,
+  ] =
+    useState<
+      "idle" |
+      "copied" |
+      "error"
+    >(
+      "idle",
+    );
+
+  useEffect(
+    () => {
+      setCopyStatus(
+        "idle",
+      );
+    },
+    [
+      candidate?.grid_id,
+    ],
+  );
+
   if (
     candidate ===
     null
@@ -102,6 +136,32 @@ export function CandidateDetails({
     spatial_diversity:
       spatialDiversity,
   } = candidate;
+
+  const handleCopyLink =
+    async () => {
+      if (
+        !onCopyLink
+      ) {
+        return;
+      }
+
+      try {
+        const copied =
+          await onCopyLink(
+            candidate.grid_id,
+          );
+
+        setCopyStatus(
+          copied
+            ? "copied"
+            : "error",
+        );
+      } catch {
+        setCopyStatus(
+          "error",
+        );
+      }
+    };
 
   return (
     <aside className="detail-panel">
@@ -158,6 +218,54 @@ export function CandidateDetails({
                 </button>
               )
               : null
+          }
+          {
+            onCopyLink
+              ? (
+                <button
+                  type="button"
+                  className="share-action"
+                  onClick={
+                    () => {
+                      void handleCopyLink();
+                    }
+                  }
+                >
+                  {
+                    copyStatus ===
+                    "copied"
+                      ? "Kopyalandı"
+                      : "Bağlantıyı kopyala"
+                  }
+                </button>
+              )
+              : null
+          }
+
+          {
+            copyStatus ===
+            "error"
+              ? (
+                <span
+                  className="share-status share-status--error"
+                  role="status"
+                  aria-live="polite"
+                >
+                  Bağlantı kopyalanamadı
+                </span>
+              )
+              : copyStatus ===
+                "copied"
+                ? (
+                  <span
+                    className="share-status"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    Bağlantı kopyalandı
+                  </span>
+                )
+                : null
           }
         </div>
       </div>

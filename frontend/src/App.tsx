@@ -30,6 +30,9 @@ import type {
   DecisionSupportCandidate,
   DecisionSupportSummary,
 } from "./types/api";
+import {
+  downloadCandidateCsv,
+} from "./utils/candidateExport";
 
 const MAX_COMPARE_CANDIDATES = 3;
 
@@ -325,6 +328,42 @@ function App() {
         setSupportFilter(
           "all",
         );
+      },
+      [],
+    );
+
+
+  const handleCopyCandidateLink =
+    useCallback(
+      async (
+        gridId: string,
+      ): Promise<boolean> => {
+        if (
+          !navigator.clipboard
+            ?.writeText
+        ) {
+          return false;
+        }
+
+        const url =
+          new URL(
+            window.location.href,
+          );
+
+        url.searchParams.set(
+          "candidate",
+          gridId,
+        );
+
+        try {
+          await navigator.clipboard.writeText(
+            url.toString(),
+          );
+
+          return true;
+        } catch {
+          return false;
+        }
       },
       [],
     );
@@ -636,6 +675,19 @@ function App() {
     supportFilter !==
       "all";
 
+
+  const handleDownloadCsv =
+    useCallback(
+      () => {
+        downloadCandidateCsv(
+          visibleCandidates,
+        );
+      },
+      [
+        visibleCandidates,
+      ],
+    );
+
   if (
     loading
   ) {
@@ -835,6 +887,9 @@ function App() {
           onResetFilters={
             handleResetFilters
           }
+          onDownloadCsv={
+            handleDownloadCsv
+          }
         />
 
         <MapPanel
@@ -875,6 +930,9 @@ function App() {
           }
           onToggleCompare={
             handleToggleCompare
+          }
+          onCopyLink={
+            handleCopyCandidateLink
           }
         />
       </main>

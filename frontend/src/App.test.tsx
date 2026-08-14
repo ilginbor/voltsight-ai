@@ -110,10 +110,21 @@ vi.mock(
   }),
 );
 
+vi.mock(
+  "./utils/candidateExport",
+  () => ({
+    downloadCandidateCsv:
+      vi.fn(),
+  }),
+);
+
 import {
   getCandidates,
   getSummary,
 } from "./services/api";
+import {
+  downloadCandidateCsv,
+} from "./utils/candidateExport";
 import App from "./App";
 
 const summary: DecisionSupportSummary = {
@@ -235,6 +246,23 @@ describe(
     beforeEach(
       () => {
         vi.clearAllMocks();
+
+        Object.defineProperty(
+          navigator,
+          "clipboard",
+          {
+            configurable:
+              true,
+            value: {
+              writeText:
+                vi
+                  .fn()
+                  .mockResolvedValue(
+                    undefined,
+                  ),
+            },
+          },
+        );
 
         window.history.replaceState(
           {},
@@ -556,6 +584,109 @@ describe(
           window.location.search,
         ).toBe(
           "?candidate=ANK_055975",
+        );
+      },
+    );
+
+    it(
+      "seçili adayın paylaşım bağlantısını panoya kopyalar",
+      async () => {
+        render(
+          <App />,
+        );
+
+        await screen.findByText(
+          "Final adaylar",
+        );
+
+        fireEvent.click(
+          screen.getByRole(
+            "button",
+            {
+              name:
+                "Bağlantıyı kopyala",
+            },
+          ),
+        );
+
+        await waitFor(
+          () => {
+            expect(
+              navigator.clipboard.writeText,
+            ).toHaveBeenCalledWith(
+              expect.stringContaining(
+                "?candidate=ANK_004300",
+              ),
+            );
+          },
+        );
+
+        expect(
+          await screen.findByText(
+            "Bağlantı kopyalandı",
+          ),
+        ).toBeInTheDocument();
+      },
+    );
+
+    it(
+      "CSV indirmede yalnızca görünür filtrelenmiş adayları kullanır",
+      async () => {
+        render(
+          <App />,
+        );
+
+        await screen.findByText(
+          "Final adaylar",
+        );
+
+        fireEvent.change(
+          screen.getByRole(
+            "searchbox",
+            {
+              name:
+                "Aday ara",
+            },
+          ),
+          {
+            target: {
+              value:
+                "ANK_055975",
+            },
+          },
+        );
+
+        fireEvent.click(
+          screen.getByRole(
+            "button",
+            {
+              name:
+                "CSV indir",
+            },
+          ),
+        );
+
+        expect(
+          vi.mocked(
+            downloadCandidateCsv,
+          ),
+        ).toHaveBeenCalledOnce();
+
+        const exported =
+          vi.mocked(
+            downloadCandidateCsv,
+          ).mock.calls[0][0];
+
+        expect(
+          exported,
+        ).toHaveLength(
+          1,
+        );
+
+        expect(
+          exported[0].grid_id,
+        ).toBe(
+          "ANK_055975",
         );
       },
     );

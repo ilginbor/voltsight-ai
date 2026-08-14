@@ -45,6 +45,7 @@ interface CandidateListProps {
   maxCompare?: number;
   filtersActive?: boolean;
   onResetFilters?: () => void;
+  onDownloadCsv?: () => void;
 }
 
 function supportText(
@@ -82,13 +83,15 @@ export function CandidateList({
   maxCompare = 3,
   filtersActive = false,
   onResetFilters,
+  onDownloadCsv,
 }: CandidateListProps) {
   const controlsEnabled =
     Boolean(
       onSearchQueryChange ||
       onSortModeChange ||
       onPriorityFilterChange ||
-      onSupportFilterChange,
+      onSupportFilterChange ||
+      onDownloadCsv,
     );
 
   return (
@@ -256,22 +259,44 @@ export function CandidateList({
                   {" aday gösteriliyor"}
                 </span>
 
-                {
-                  filtersActive &&
-                  onResetFilters
-                    ? (
-                      <button
-                        type="button"
-                        className="text-button"
-                        onClick={
-                          onResetFilters
-                        }
-                      >
-                        Sıfırla
-                      </button>
-                    )
-                    : null
-                }
+                <div className="candidate-filter-actions">
+                  {
+                    filtersActive &&
+                    onResetFilters
+                      ? (
+                        <button
+                          type="button"
+                          className="text-button"
+                          onClick={
+                            onResetFilters
+                          }
+                        >
+                          Sıfırla
+                        </button>
+                      )
+                      : null
+                  }
+
+                  {
+                    onDownloadCsv
+                      ? (
+                        <button
+                          type="button"
+                          className="text-button"
+                          disabled={
+                            candidates.length ===
+                            0
+                          }
+                          onClick={
+                            onDownloadCsv
+                          }
+                        >
+                          CSV indir
+                        </button>
+                      )
+                      : null
+                  }
+                </div>
               </div>
             </div>
           )

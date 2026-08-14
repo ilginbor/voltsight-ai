@@ -493,5 +493,51 @@ describe(
         ).toBeInTheDocument();
       },
     );
+
+    it(
+      "görünür adayları CSV olarak dışa aktarma işlemini bildirir",
+      () => {
+        const onDownloadCsv =
+          vi.fn();
+
+        render(
+          <CandidateList
+            candidates={
+              buildCandidates()
+            }
+            totalCandidates={
+              20
+            }
+            selectedGridId={
+              null
+            }
+            onSelect={
+              vi.fn()
+            }
+            searchQuery=""
+            onSearchQueryChange={
+              vi.fn()
+            }
+            onDownloadCsv={
+              onDownloadCsv
+            }
+          />,
+        );
+
+        fireEvent.click(
+          screen.getByRole(
+            "button",
+            {
+              name:
+                "CSV indir",
+            },
+          ),
+        );
+
+        expect(
+          onDownloadCsv,
+        ).toHaveBeenCalledOnce();
+      },
+    );
   },
 );

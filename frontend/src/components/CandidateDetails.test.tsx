@@ -1,4 +1,5 @@
 import {
+  fireEvent,
   render,
   screen,
 } from "@testing-library/react";
@@ -6,6 +7,7 @@ import {
   describe,
   expect,
   it,
+  vi,
 } from "vitest";
 
 import {
@@ -170,6 +172,51 @@ describe(
         expect(
           screen.getByText(
             "güçlü yol erişilebilirliği; yüksek şarj altyapısı açığı; AC/DC teknoloji açığı",
+          ),
+        ).toBeInTheDocument();
+      },
+    );
+
+    it(
+      "seçili aday bağlantısını kopyalama sonucunu kullanıcıya bildirir",
+      async () => {
+        const onCopyLink =
+          vi
+            .fn()
+            .mockResolvedValue(
+              true,
+            );
+
+        render(
+          <CandidateDetails
+            candidate={
+              createCandidate()
+            }
+            onCopyLink={
+              onCopyLink
+            }
+          />,
+        );
+
+        fireEvent.click(
+          screen.getByRole(
+            "button",
+            {
+              name:
+                "Bağlantıyı kopyala",
+            },
+          ),
+        );
+
+        expect(
+          onCopyLink,
+        ).toHaveBeenCalledWith(
+          "ANK_004300",
+        );
+
+        expect(
+          await screen.findByText(
+            "Bağlantı kopyalandı",
           ),
         ).toBeInTheDocument();
       },
