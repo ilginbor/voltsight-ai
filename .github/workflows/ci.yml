@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   python-tests:
-    name: Python tests
+    name: Python fresh-clone tests
     runs-on: windows-latest
     timeout-minutes: 30
 
@@ -38,8 +38,27 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
 
-      - name: Run Python test suite
-        run: python -m pytest -q
+      - name: Run fresh-clone Python test suite
+        shell: pwsh
+        run: |
+          # These integration/data-validation modules intentionally require
+          # generated GeoPackage/CSV pipeline artifacts that are gitignored
+          # and therefore are not present in a clean GitHub Actions checkout.
+          #
+          # They remain part of the local full validation command:
+          #   python -m pytest -q
+          #
+          # CI runs the deterministic fresh-clone-safe suite instead.
+          python -m pytest -q `
+            --ignore=tests/test_charging_features.py `
+            --ignore=tests/test_diverse_candidate_shortlist.py `
+            --ignore=tests/test_merge_charging_station_sources.py `
+            --ignore=tests/test_model_dataset.py `
+            --ignore=tests/test_parking_features.py `
+            --ignore=tests/test_prepare_epdk_charging_report.py `
+            --ignore=tests/test_road_features.py `
+            --ignore=tests/test_study_grid.py `
+            --ignore=tests/test_suitability_scores.py
 
   frontend:
     name: Frontend tests and build
