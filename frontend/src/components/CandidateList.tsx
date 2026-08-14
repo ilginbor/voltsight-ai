@@ -243,15 +243,17 @@ export function CandidateList({
               </div>
 
               <div className="candidate-filter-summary">
-                <span>
-                  Gösterilen{" "}
+                <span
+                  aria-label={`${candidates.length} / ${totalCandidates} aday gösteriliyor`}
+                >
                   <strong>
                     {candidates.length}
                   </strong>
-                  {" "}of{" "}
+                  {" / "}
                   <strong>
                     {totalCandidates}
                   </strong>
+                  {" aday gösteriliyor"}
                 </span>
 
                 {
